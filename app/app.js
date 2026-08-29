@@ -411,11 +411,17 @@
     name.textContent = player.full_name || "Unknown Player";
     front.appendChild(name);
 
-    var sub = document.createElement("p");
-    sub.className = "player-sub";
-    var jerseyPart = player.jersey ? "#" + player.jersey + " " : "";
-    sub.textContent = jerseyPart + (player.position_abbrev || "");
-    front.appendChild(sub);
+    var meta = document.createElement("div");
+    meta.className = "card-tile__meta";
+    var jerseyNum = document.createElement("span");
+    jerseyNum.className = "jersey-num";
+    jerseyNum.textContent = player.jersey ? "#" + player.jersey : "";
+    var badge = document.createElement("span");
+    badge.className = "badge";
+    badge.textContent = player.position_abbrev || "--";
+    meta.appendChild(jerseyNum);
+    meta.appendChild(badge);
+    front.appendChild(meta);
 
     var hint = document.createElement("p");
     hint.className = "flip-hint";

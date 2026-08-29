@@ -317,6 +317,12 @@ button {
   flex-direction: column;
 }
 
+.flip-card__face--front .card-tile__meta {
+  justify-content: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .flip-card__face--back {
   transform: rotateY(180deg);
 }
