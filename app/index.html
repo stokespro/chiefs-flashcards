@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kansas City Chiefs Flashcards</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header__row">
+    <h1 class="app-header__title">Chiefs Flashcards</h1>
+    <label class="visually-hidden" for="nameFilter">Filter players by name</label>
+    <input
+      type="search"
+      id="nameFilter"
+      class="app-header__search"
+      placeholder="Find a player by name..."
+      autocomplete="off"
+    >
+    <button type="button" id="padButton" class="pad-button" aria-label="Open jersey number pad">#</button>
+  </div>
+  <div class="chip-row" id="groupChips" role="group" aria-label="Filter by position group">
+    <button type="button" class="chip" data-group="All" aria-pressed="true">All</button>
+    <button type="button" class="chip" data-group="Offense" aria-pressed="false">Offense</button>
+    <button type="button" class="chip" data-group="Defense" aria-pressed="false">Defense</button>
+    <button type="button" class="chip" data-group="Special Teams" aria-pressed="false">Special Teams</button>
+    <button type="button" class="chip" data-group="Reserve" aria-pressed="false">Reserve</button>
+  </div>
+</header>
+
+<main id="view" aria-live="polite"></main>
+
+<script src="./roster.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>

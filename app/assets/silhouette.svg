@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Player headshot unavailable">
+  <rect width="200" height="200" fill="#5a5a5a"/>
+  <circle cx="100" cy="78" r="42" fill="#8a8a8a"/>
+  <path d="M30 190c0-45 31-78 70-78s70 33 70 78z" fill="#8a8a8a"/>
+</svg>
