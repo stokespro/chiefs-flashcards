@@ -191,11 +191,24 @@ button {
   margin-bottom: 0.4rem;
 }
 
+/* SPRO-134 (2026-08-29): semi-transparent card background behind headshot photo/fallback.
+   Applies to grid tiles and the enlarged card front -- both share .headshot-wrap. */
+.headshot-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("assets/card-bg.png") center / cover no-repeat;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
 .headshot-wrap img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  position: relative;
+  z-index: 1;
 }
 
 .headshot-wrap .initials {
@@ -208,6 +221,7 @@ button {
   font-weight: 700;
   color: #fff;
   background: #5a5a5a;
+  z-index: 2;
 }
 
 .headshot-wrap.headshot-fallback .initials {
