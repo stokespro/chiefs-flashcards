@@ -72,16 +72,22 @@ button {
   flex: 0 0 auto;
 }
 
-/* SPRO-134 (2026-08-30): inline KC arrowhead mark. It is now the header's
-   only visible title content (the "Chiefs Flashcards" text moved to a
-   visually-hidden span for the accessible name). The 1.9rem/1.66rem sizing
-   is set explicitly here (rem resolves against the root 16px font-size,
-   not .app-header__title) -- deliberately larger now that the logo is the
-   only visible header content. */
+/* SPRO-134 (2026-08-30): KC arrowhead mark, rendered as an <img> pointing at
+   the shared card-bg.png asset (accessible name lives in the img's alt, not
+   a hidden span). That source is a 250x250 square canvas but the arrowhead
+   artwork only fills a 231x150 alpha region -- roughly 50px of transparent
+   padding above and below. A naive square box with object-fit: contain
+   fits by height and shrinks the visible mark far below the old inline SVG.
+   Instead the box is 2.56rem wide x 1.66rem tall (height unchanged, so the
+   header row doesn't grow) with object-fit: cover, which scales by width
+   and crops ~44px of transparent padding off the top/bottom in source
+   pixels -- less than the 50px available, so no artwork is clipped, and the
+   visible mark comes out close to the original SVG's rendered size. */
 .app-header__logo {
-  width: 1.9rem;
+  width: 2.56rem;
   height: 1.66rem;
   flex: 0 0 auto;
+  object-fit: cover;
 }
 
 .app-header__search {
