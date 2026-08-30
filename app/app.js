@@ -9,6 +9,7 @@
     players: [],           // roster.players, as loaded
     filterName: "",
     filterGroup: "All",
+    filterPosition: "All",
     lastFilteredIds: [],   // ids in the order last shown in the grid
     padDigits: "",
   };
@@ -117,6 +118,11 @@
   // ------------------------------------------------------------ data util
 
 
+  function matchesPosition(player, position) {
+    if (position === "All") { return true; }
+    return player.position_abbrev === position;
+  }
+
   function matchesGroup(player, group) {
     if (group === "All") { return true; }
     return player.position_group === group;
@@ -130,7 +136,9 @@
 
   function getFilteredPlayers() {
     return state.players.filter(function (p) {
-      return matchesGroup(p, state.filterGroup) && matchesName(p, state.filterName);
+      return matchesGroup(p, state.filterGroup)
+        && matchesPosition(p, state.filterPosition)
+        && matchesName(p, state.filterName);
     });
   }
 
@@ -289,6 +297,49 @@
 
   var GROUPS = ["All", "Offense", "Defense", "Special Teams"];
 
+  /* Depth-chart order, not alphabetical -- QB before C reads correctly to
+     anyone who follows football. Anything unrecognised sorts to the end. */
+  var POSITION_ORDER = ["QB", "RB", "FB", "WR", "TE", "OT", "G", "C", "OL",
+                        "DE", "DT", "NT", "LB", "ILB", "OLB", "CB", "S", "FS",
+                        "SS", "PK", "K", "P", "LS"];
+
+  /* A sub-row only earns its vertical space when it meaningfully narrows the
+     list. Special Teams is three players across three positions -- four chips
+     to filter three cards is worse than no chips at all. */
+  var SUB_FILTER_MIN_PLAYERS = 6;
+  var SUB_FILTER_MIN_POSITIONS = 2;
+
+  function positionsInGroup(group) {
+    if (group === "All") { return []; }
+    var counts = {};
+    state.players.forEach(function (p) {
+      if (!matchesGroup(p, group)) { return; }
+      var pos = p.position_abbrev;
+      if (!pos) { return; }
+      counts[pos] = (counts[pos] || 0) + 1;
+    });
+
+    var total = 0;
+    var list = Object.keys(counts).map(function (pos) {
+      total += counts[pos];
+      return { pos: pos, count: counts[pos] };
+    });
+
+    if (total < SUB_FILTER_MIN_PLAYERS || list.length < SUB_FILTER_MIN_POSITIONS) {
+      return [];
+    }
+
+    list.sort(function (a, b) {
+      var ai = POSITION_ORDER.indexOf(a.pos);
+      var bi = POSITION_ORDER.indexOf(b.pos);
+      if (ai === -1) { ai = POSITION_ORDER.length; }
+      if (bi === -1) { bi = POSITION_ORDER.length; }
+      if (ai !== bi) { return ai - bi; }
+      return a.pos.localeCompare(b.pos);
+    });
+    return list;
+  }
+
   /* The filter bar is built once and cached. Typing in the search field
      re-renders the roster, so if the bar were rebuilt each pass the focused
      input would be destroyed mid-keystroke and lose both focus and caret.
@@ -337,11 +388,59 @@
       chipRow.appendChild(chip);
     });
 
+    var subRow = document.createElement("div");
+    subRow.className = "chip-row chip-row--sub";
+    subRow.setAttribute("role", "group");
+    subRow.setAttribute("aria-label", "Filter by position");
+
+    function renderSubRow() {
+      subRow.innerHTML = "";
+      var positions = positionsInGroup(state.filterGroup);
+      subRow.hidden = positions.length === 0;
+      if (subRow.hidden) { return; }
+
+      var all = document.createElement("button");
+      all.type = "button";
+      all.className = "chip chip--sub";
+      all.setAttribute("data-position", "All");
+      all.setAttribute("aria-pressed", state.filterPosition === "All" ? "true" : "false");
+      all.textContent = "All " + state.filterGroup;
+      subRow.appendChild(all);
+
+      positions.forEach(function (entry) {
+        var chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "chip chip--sub";
+        chip.setAttribute("data-position", entry.pos);
+        chip.setAttribute("aria-pressed", state.filterPosition === entry.pos ? "true" : "false");
+        chip.textContent = entry.pos;
+        var count = document.createElement("span");
+        count.className = "chip__count";
+        count.textContent = entry.count;
+        chip.appendChild(count);
+        subRow.appendChild(chip);
+      });
+    }
+
     chipRow.addEventListener("click", function (evt) {
       var btn = evt.target.closest(".chip");
       if (!btn) { return; }
       state.filterGroup = btn.getAttribute("data-group");
+      // A position from the old group would match nothing in the new one.
+      state.filterPosition = "All";
       var chips = chipRow.querySelectorAll(".chip");
+      for (var i = 0; i < chips.length; i++) {
+        chips[i].setAttribute("aria-pressed", chips[i] === btn ? "true" : "false");
+      }
+      renderSubRow();
+      renderGridView();
+    });
+
+    subRow.addEventListener("click", function (evt) {
+      var btn = evt.target.closest(".chip");
+      if (!btn) { return; }
+      state.filterPosition = btn.getAttribute("data-position");
+      var chips = subRow.querySelectorAll(".chip");
       for (var i = 0; i < chips.length; i++) {
         chips[i].setAttribute("aria-pressed", chips[i] === btn ? "true" : "false");
       }
@@ -349,6 +448,8 @@
     });
 
     bar.appendChild(chipRow);
+    bar.appendChild(subRow);
+    renderSubRow();
 
     rosterFiltersEl = bar;
     return bar;
