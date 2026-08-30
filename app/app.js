@@ -421,31 +421,6 @@
     }
     state.lastFilteredIds = ids;
 
-    var nav = document.createElement("div");
-    nav.className = "card-nav";
-
-    var prevBtn = document.createElement("button");
-    prevBtn.type = "button";
-    prevBtn.className = "nav-btn";
-    prevBtn.textContent = "‹ Prev";
-    prevBtn.disabled = currentIndex <= 0;
-
-    var counter = document.createElement("span");
-    counter.textContent = (currentIndex + 1) + " of " + ids.length;
-
-    var nextBtn = document.createElement("button");
-    nextBtn.type = "button";
-    nextBtn.className = "nav-btn";
-    nextBtn.textContent = "Next ›";
-    nextBtn.disabled = currentIndex >= ids.length - 1;
-
-    prevBtn.addEventListener("click", function () { goToIndex(ids, currentIndex - 1); });
-    nextBtn.addEventListener("click", function () { goToIndex(ids, currentIndex + 1); });
-
-    nav.appendChild(prevBtn);
-    nav.appendChild(counter);
-    nav.appendChild(nextBtn);
-    wrap.appendChild(nav);
 
     var scene = document.createElement("div");
     scene.className = "flip-scene";
@@ -669,20 +644,47 @@
     var scroll = document.createElement("div");
     scroll.className = "flip-card__scroll";
 
+    var sheen = document.createElement("div");
+    sheen.className = "sheen";
+    scroll.appendChild(sheen);
+
+    // Same rail as the front, so the two sides read as one card.
+    scroll.appendChild(buildCardRail(player));
+
+    var plate = document.createElement("div");
+    plate.className = "card-plate";
+    var name = document.createElement("h2");
+    name.className = "player-name";
+    fillPlayerName(name, player.full_name);
+    plate.appendChild(name);
+    var sub = document.createElement("p");
+    sub.className = "player-sub";
+    sub.textContent = player.position_name || player.position_abbrev || "";
+    plate.appendChild(sub);
+    scroll.appendChild(plate);
+
+    /* The body is the only scrolling region -- the card itself keeps the
+       height the front face sets. Swap what goes in here to change the back
+       of the card; the surrounding structure stays put. */
+    var body = document.createElement("div");
+    body.className = "card-bio";
+
     var notesHeading = document.createElement("p");
     notesHeading.className = "notes-heading";
     notesHeading.textContent = "Auto-generated profile notes.";
-    scroll.appendChild(notesHeading);
+    body.appendChild(notesHeading);
 
     var strengths = document.createElement("p");
     strengths.className = "notes-block";
     strengths.innerHTML = "<strong>Strengths:</strong> " + escapeHtml(player.strengths || "Not available.");
-    scroll.appendChild(strengths);
+    body.appendChild(strengths);
 
     var weaknesses = document.createElement("p");
     weaknesses.className = "notes-block";
     weaknesses.innerHTML = "<strong>Areas to watch:</strong> " + escapeHtml(player.weaknesses || "Not available.");
-    scroll.appendChild(weaknesses);
+    body.appendChild(weaknesses);
+
+    scroll.appendChild(body);
 
     var links = buildCardLinks(player);
     if (links) { scroll.appendChild(links); }

@@ -153,7 +153,6 @@ button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.5rem;
 }
 
 .app-header__title {
@@ -227,8 +226,7 @@ button {
 .chip:focus-visible,
 .card-tile:focus-visible,
 .flip-card:focus-visible,
-.pad-key:focus-visible,
-.nav-btn:focus-visible {
+.pad-key:focus-visible {
   outline: 3px solid var(--chiefs-gold);
   outline-offset: 2px;
 }
@@ -526,35 +524,6 @@ button {
   margin: 0 auto;
 }
 
-.card-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--muted);
-  -webkit-text-fill-color: var(--muted);
-}
-
-.nav-btn {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 0.4rem 0.9rem;
-  font-family: var(--font-mono);
-  font-weight: 600;
-  font-size: 0.8rem;
-  color: var(--ink);
-  -webkit-text-fill-color: var(--ink);
-}
-
-.nav-btn:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
 .flip-scene {
   perspective: 1400px;
 }
@@ -675,8 +644,61 @@ button {
   isolation: isolate;
 }
 
+/* Rail and nameplate are fixed; only the body scrolls, so the back keeps
+   exactly the height the front sets. min-height: 0 on the scrolling
+   row is required -- a grid item defaults to min-content and would refuse
+   to shrink, pushing the links off the card instead of scrolling. */
 .flip-card__face--back .flip-card__scroll {
-  padding: 0.9rem;
+  padding: 0;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+
+.flip-card__face--back .card-plate {
+  padding: 0.75rem 0.85rem 0.6rem;
+}
+
+.card-bio {
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 0.1rem 0.85rem 0.2rem;
+}
+
+.card-bio p {
+  margin: 0 0 0.6rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.card-bio p:last-child { margin-bottom: 0; }
+
+.notes-heading {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+  margin: 0 0 0.5rem;
+}
+
+.notes-block strong {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+  -webkit-text-fill-color: var(--gold-ink);
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.flip-card__face--back .card-links {
+  padding: 0.6rem 0.85rem 0.85rem;
+  margin-top: 0;
 }
 
 /* ---- top rail on the enlarged card ---- */
@@ -922,37 +944,8 @@ button {
   -webkit-text-fill-color: var(--ink);
 }
 
-.notes-heading {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--muted);
-  -webkit-text-fill-color: var(--muted);
-  margin: 0.6rem 0 0.4rem;
-}
-
-.notes-block {
-  margin: 0 0 0.6rem;
-  line-height: 1.45;
-  font-size: 0.9rem;
-}
-
-.notes-block strong {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gold-ink);
-  -webkit-text-fill-color: var(--gold-ink);
-  display: block;
-  margin-bottom: 0.15rem;
-}
-
 /* SPRO-134 (2026-08-30): back-face external links (Chiefs.com profile,
-   socials search). Sized to match the .nav-btn touch-target convention --
-   comfortably tappable on mobile. */
+   socials search). Kept at a comfortable mobile touch-target size. */
 .card-links {
   display: flex;
   flex-wrap: wrap;
