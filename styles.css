@@ -1,0 +1,1057 @@
+/* Chiefs Flashcards -- trading-card theme, mobile-first, no build step.
+   ---------------------------------------------------------------------
+   Class names and DOM structure are unchanged from the previous
+   stylesheet, so app.js needs no edits.
+
+   THEMING: light is the base. Dark applies when the OS asks for it, or
+   when <html data-theme="dark"> is set. data-theme="light" pins light
+   even on a dark OS. Every colour is a token -- there are no
+   theme-specific rules below the token blocks.
+
+   Load-bearing rules carried over verbatim (do not "simplify"):
+     - the .flip-card backface / visibility choreography
+     - .flip-card__scroll owning overflow instead of the face
+     - -webkit-text-fill-color alongside every colour (SPRO-134)
+     - .app-header__logo object-fit: cover crop
+*/
+
+:root {
+  /* brand constants -- identical in both themes */
+  --chiefs-red:  #E31837;
+  --chiefs-gold: #F3B21B;
+
+  --radius: 10px;
+  --radius-card: 14px;
+
+  --font-body: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --foil: linear-gradient(155deg, #FFD766 0%, var(--chiefs-gold) 28%,
+          #A9740B 52%, var(--chiefs-gold) 74%, #FFE9A8 100%);
+  --tab-red: linear-gradient(100deg, #EC2140 0%, var(--chiefs-red) 55%, #B31324 100%);
+
+  /* -- LIGHT ------------------------------------------------------ */
+  --page:         #E7E9EF;
+  --surface-top:  #FFFFFF;
+  --surface:      #F2F3F7;
+  --surface-deep: #E4E7EE;
+  --field:        #FFFFFF;
+  --ink:          #14161D;
+  --muted:        #6A7080;
+  --gold-ink:     #8F6305;   /* gold is illegible on paper -- darken for type */
+  --border:        rgba(11, 12, 16, 0.16);
+  --edge:          rgba(11, 12, 16, 0.20);
+  --panel:         rgba(11, 12, 16, 0.045);
+  --scrim:         228, 231, 238;
+  --grain:         #0B0C10;
+  --grain-alpha:   0.045;
+  --wm-alpha:      0.13;
+  --lift:          0 6px 16px -6px rgba(20, 22, 29, 0.35);
+  --plate-tint:    0.10;
+  --glow:          0.16;
+  --sheen-blend:   overlay;
+  --num-shadow:    0 2px 14px rgba(255, 255, 255, 0.9), 0 1px 2px rgba(255, 255, 255, 0.9);
+
+  font-family: var(--font-body);
+}
+
+/* -- DARK: follows the OS unless the site pins light -------------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+  --page:         #0B0C10;
+  --surface-top:  #1C1F29;
+  --surface:      #14161D;
+  --surface-deep: #0B0C10;
+  --field:        #23262F;
+  --ink:          #F2EFE9;
+  --muted:        #8A9099;
+  --gold-ink:     #F3B21B;
+  --border:        rgba(255, 255, 255, 0.14);
+  --edge:          rgba(0, 0, 0, 0.55);
+  --panel:         rgba(255, 255, 255, 0.05);
+  --scrim:         11, 12, 16;
+  --grain:         #FFFFFF;
+  --grain-alpha:   0.05;
+  --wm-alpha:      0.20;
+  --lift:          0 10px 26px -10px rgba(0, 0, 0, 0.85);
+  --plate-tint:    0.16;
+  --glow:          0.34;
+  --sheen-blend:   color-dodge;
+  --num-shadow:    0 2px 12px rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* -- DARK: forced via <html data-theme="dark"> -------------------- */
+:root[data-theme="dark"] {
+  --page:         #0B0C10;
+  --surface-top:  #1C1F29;
+  --surface:      #14161D;
+  --surface-deep: #0B0C10;
+  --field:        #23262F;
+  --ink:          #F2EFE9;
+  --muted:        #8A9099;
+  --gold-ink:     #F3B21B;
+  --border:        rgba(255, 255, 255, 0.14);
+  --edge:          rgba(0, 0, 0, 0.55);
+  --panel:         rgba(255, 255, 255, 0.05);
+  --scrim:         11, 12, 16;
+  --grain:         #FFFFFF;
+  --grain-alpha:   0.05;
+  --wm-alpha:      0.20;
+  --lift:          0 10px 26px -10px rgba(0, 0, 0, 0.85);
+  --plate-tint:    0.16;
+  --glow:          0.34;
+  --sheen-blend:   color-dodge;
+  --num-shadow:    0 2px 12px rgba(0, 0, 0, 0.8);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--page);
+  color: var(--ink);
+  /* SPRO-134 (2026-08-30): iOS Safari's data detectors (phone/date/address)
+     restyle auto-linkified text -- overriding `color` alone is not enough,
+     iOS forces its own link color on top of it. Pin the fill color directly
+     so detected text (jersey numbers, dates, heights/weights, college towns)
+     still renders in the intended color instead of link-blue. */
+  -webkit-text-fill-color: var(--ink);
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-body);
+}
+
+a { color: inherit; }
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------- header */
+
+.app-header {
+  background: var(--tab-red);
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  border-bottom: 3px solid var(--chiefs-gold);
+  padding: 0.6rem 0.75rem 0.75rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.app-header__row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.app-header__title {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin: 0;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+/* SPRO-134 (2026-08-30): KC arrowhead mark, rendered as an <img> pointing at
+   the shared card-bg.png asset (accessible name lives in the img's alt, not
+   a hidden span). That source is a 250x250 square canvas but the arrowhead
+   artwork only fills a 231x150 alpha region -- roughly 50px of transparent
+   padding above and below. A naive square box with object-fit: contain
+   fits by height and shrinks the visible mark far below the old inline SVG.
+   Instead the box is 2.56rem wide x 1.66rem tall (height unchanged, so the
+   header row doesn't grow) with object-fit: cover, which scales by width
+   and crops ~44px of transparent padding off the top/bottom in source
+   pixels -- less than the 50px available, so no artwork is clipped, and the
+   visible mark comes out close to the original SVG's rendered size. */
+.app-header__logo {
+  width: 2.56rem;
+  height: 1.66rem;
+  flex: 0 0 auto;
+  object-fit: cover;
+}
+
+.app-header__actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Roster icon: a 2x2 card grid, inheriting the button's text colour. */
+#rosterButton svg {
+  width: 1rem;
+  height: 1rem;
+  display: block;
+  fill: currentColor;
+}
+
+.pad-button,
+.theme-button {
+  flex: 0 0 auto;
+  background: var(--chiefs-gold);
+  color: #14161D;
+  -webkit-text-fill-color: #14161D;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* Theme toggle sits beside the number pad button; label is swapped in JS. */
+.theme-button {
+  background: rgba(0, 0, 0, 0.28);
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.pad-button:focus-visible,
+.theme-button:focus-visible,
+.chip:focus-visible,
+.card-tile:focus-visible,
+.flip-card:focus-visible,
+.pad-key:focus-visible {
+  outline: 3px solid var(--chiefs-gold);
+  outline-offset: 2px;
+}
+
+/* JS sets [hidden] on non-roster views; without this the display:flex below
+   would override the attribute's own display:none. */
+.chip-row[hidden] {
+  display: none;
+}
+
+/* ---- roster filter bar (lives in the body, not the header) ---- */
+
+.roster-filters {
+  margin-bottom: 0.75rem;
+}
+
+.roster-search {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--field);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+}
+
+.roster-search::placeholder {
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+  opacity: 1;
+}
+
+.roster-search:focus-visible {
+  outline: 3px solid var(--chiefs-gold);
+  outline-offset: 1px;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  background: var(--surface);
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+
+.chip[aria-pressed="true"] {
+  background: var(--tab-red);
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  border-color: rgba(243, 178, 27, 0.55);
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------------ main */
+
+#view {
+  flex: 1 1 auto;
+  padding: 0.75rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.empty-state,
+.error-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-align: center;
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+  margin-top: 1rem;
+}
+
+.error-panel code {
+  background: var(--panel);
+  font-family: var(--font-mono);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+/* ------------------------------------------------------------------ grid */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.6rem;
+}
+
+@media (min-width: 480px) {
+  .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
+}
+
+@media (min-width: 768px) {
+  .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+}
+
+/* Gold foil band. The tile itself is the band; .card-tile__frame is the
+   card body sitting inside it -- same construction as the standalone card. */
+.card-tile {
+  display: block;
+  width: 100%;
+  background: var(--foil);
+  border: none;
+  border-radius: var(--radius-card);
+  padding: 4px;
+  text-align: left;
+  box-shadow: var(--lift);
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+}
+
+.card-tile__frame {
+  position: relative;
+  border: 1px solid var(--edge);
+  border-radius: calc(var(--radius-card) - 4px);
+  padding: 0;
+  background: radial-gradient(120% 80% at 50% 0%,
+    var(--surface-top) 0%, var(--surface) 45%, var(--surface-deep) 100%);
+  overflow: hidden;
+}
+
+/* Refractor grain, matching the standalone card. */
+.card-tile__frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--grain-alpha);
+  background: repeating-linear-gradient(115deg, var(--grain) 0 1px, transparent 1px 5px);
+  border-radius: inherit;
+}
+
+.flip-card__face::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: var(--grain-alpha);
+  background: repeating-linear-gradient(115deg, var(--grain) 0 1px, transparent 1px 5px);
+  border-radius: calc(var(--radius-card) - 8px);
+}
+
+.headshot-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--surface);
+  margin: 0;
+}
+
+/* SPRO-134 (2026-08-29): semi-transparent card background behind headshot photo/fallback.
+   Applies to grid tiles and the enlarged card front -- both share .headshot-wrap. */
+.headshot-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("assets/card-bg.png") center 34% / 92% auto no-repeat;
+  opacity: var(--wm-alpha);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Tones the watermark but not the player -- app.js appends this before the
+   <img>, so the photo paints over it. Top fade seats the rail, red glow sits
+   behind the subject, vignette pulls the corners down, and the last stop
+   dissolves the photo into the nameplate. */
+.scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(var(--scrim), 0.55) 0%, rgba(var(--scrim), 0) 32%,
+                            rgba(var(--scrim), 0.40) 76%, var(--surface) 100%),
+    radial-gradient(70% 76% at 50% 76%, rgba(227, 24, 55, var(--glow)) 0%, transparent 70%),
+    radial-gradient(80% 70% at 50% 42%, transparent 0%, rgba(var(--scrim), 0.55) 100%);
+}
+
+/* ESPN headshots are wide, transparent, and bottom-weighted. Contain them,
+   then scale up from the bottom edge so the subject fills the frame instead
+   of floating in the middle of it. */
+.headshot-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+  transform: scale(1.14);
+  transform-origin: bottom center;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+.headshot-wrap .initials {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+  background: var(--surface);
+  z-index: 3;
+}
+
+.headshot-wrap.headshot-fallback .initials {
+  display: flex;
+}
+
+.card-tile__name {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.15rem;
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  margin: 0;
+}
+
+/* Angled red tab in the bottom-left of the photo. Opaque, so the type never
+   sits directly on a red jersey; the diagonal keeps it from reading as a
+   full-width banner. Extra right padding leaves room for the cut. */
+.badge {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 3;
+  background: var(--tab-red);
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  border-top: 1px solid rgba(243, 178, 27, 0.55);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  padding: 0.25rem 1.1rem 0.25rem 0.6rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Jersey number, top-right of the photo. */
+.jersey-num {
+  position: absolute;
+  /* top and right intentionally equal -- the number sits in the corner with
+     matching optical margin on both sides. */
+  top: 0.45rem;
+  right: 0.45rem;
+  z-index: 3;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.9rem;
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+  text-shadow: var(--num-shadow);
+}
+
+/* Nameplate under the photo, on both the tile and the enlarged card. */
+.card-plate {
+  position: relative;
+  z-index: 1;
+  padding: 0.5rem 0.55rem 0.55rem;
+  background: linear-gradient(180deg, rgba(227, 24, 55, var(--plate-tint)), transparent 90%);
+  border-top: 1px solid rgba(243, 178, 27, 0.35);
+}
+
+/* --------------------------------------------------------------- player */
+
+.player-view {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.flip-scene {
+  perspective: 1400px;
+}
+
+/* Tilt wrapper. The card flips inside this, so the two transforms compose
+   instead of overwriting each other. */
+.flip-tilt {
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.flip-tilt.is-live {
+  transition: transform 0.08s linear;
+}
+
+/* SIGNATURE: prismatic refractor highlight that tracks the pointer. Lives
+   inside .flip-card__scroll rather than on the face itself -- the face has
+   to stay a clean transformed layer for backface-visibility to hold (see
+   SPRO-134 above). */
+.sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  mix-blend-mode: var(--sheen-blend);
+  opacity: var(--sheen, 0);
+  transition: opacity 0.45s ease;
+  background: radial-gradient(260px 340px at var(--mx, 50%) var(--my, 40%),
+    rgba(255, 255, 255, 0.30) 0%,
+    rgba(0, 224, 255, 0.18) 26%,
+    rgba(255, 0, 190, 0.16) 46%,
+    rgba(255, 214, 0, 0.14) 62%,
+    transparent 76%);
+}
+
+.flip-card {
+  position: relative;
+  width: 100%;
+  display: block;
+  border-radius: var(--radius-card);
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+  border: none;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Both faces share one grid cell, so the card sizes itself to the taller of
+   the two -- no fixed height, no interior scrolling. This lives on a plain
+   div rather than on .flip-card itself: WebKit does not reliably treat a
+   <button> as a grid container and would stack the faces vertically. */
+.flip-stack {
+  display: grid;
+  transform-style: preserve-3d;
+}
+
+.flip-card.is-flipped {
+  transform: rotateY(180deg);
+}
+
+/* Gold foil band on both faces, with the card body drawn inside it. */
+.flip-card__face {
+  position: relative;
+  grid-area: 1 / 1;
+  /* Grid so .flip-card__scroll stretches to the full face height. Both faces
+     share one grid cell, so the shorter one (the back) is stretched to the
+     taller one -- without this the back panel stopped at its own content and
+     left bare foil below it. */
+  display: grid;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border: none;
+  border-radius: var(--radius-card);
+  background: var(--foil);
+  padding: 8px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    var(--lift);
+  visibility: visible;
+  transition: visibility 0s linear 0.55s;
+}
+
+/* Hairline inside the foil band -- reads as the second border on a real
+   card. Pointer-events off so it never intercepts the flip click. */
+.flip-card__face::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--edge);
+  border-radius: calc(var(--radius-card) - 2px);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* SPRO-134 (2026-08-30): overflow is handled on this inner wrapper, never on
+   .flip-card__face itself. An overflow value on the 3D-transformed face
+   forces WebKit to flatten/repaint the layer, which defeats
+   backface-visibility: hidden and briefly flashes the hidden face after a
+   flip. Keeping the face a clean transformed layer avoids that.
+   `hidden` (not `auto`) because the card now grows to fit its content --
+   this only clips the full-bleed photo to the rounded corners. */
+.flip-card__scroll {
+  position: relative;
+  z-index: 1;
+  height: auto;
+  overflow: hidden;
+  border-radius: calc(var(--radius-card) - 5px);
+  border: 1px solid var(--edge);
+  background: radial-gradient(120% 80% at 50% 0%,
+    var(--surface-top) 0%, var(--surface) 45%, var(--surface-deep) 100%);
+  /* No padding here -- the photo runs edge to edge and each section below
+     carries its own inset. The back face restores padding on its own. */
+  padding: 0;
+  isolation: isolate;
+}
+
+/* Rail and nameplate are fixed; only the body scrolls, so the back keeps
+   exactly the height the front sets. min-height: 0 on the scrolling
+   row is required -- a grid item defaults to min-content and would refuse
+   to shrink, pushing the links off the card instead of scrolling. */
+.flip-card__face--back .flip-card__scroll {
+  padding: 0;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+
+.flip-card__face--back .card-plate {
+  padding: 0.75rem 0.85rem 0.6rem;
+}
+
+.card-bio {
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 0.1rem 0.85rem 0.2rem;
+}
+
+.card-bio p {
+  margin: 0 0 0.6rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.card-bio p:last-child { margin-bottom: 0; }
+
+.notes-heading {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+  margin: 0 0 0.5rem;
+}
+
+.notes-block strong {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+  -webkit-text-fill-color: var(--gold-ink);
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.flip-card__face--back .card-links {
+  padding: 0.6rem 0.85rem 0.85rem;
+  margin-top: 0;
+}
+
+/* ---- top rail on the enlarged card ---- */
+
+.card-rail {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.8rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Same object-fit: cover crop as the header mark -- the source PNG has
+   ~50px of transparent padding above and below the arrowhead. */
+.card-rail__mark {
+  width: 1.9rem;
+  height: 1.24rem;
+  flex: 0 0 auto;
+  object-fit: cover;
+}
+
+.card-rail__team {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+}
+
+.card-rail__team span {
+  color: var(--chiefs-red);
+  -webkit-text-fill-color: var(--chiefs-red);
+}
+
+.card-rail__serial {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+}
+
+/* ---- draft provenance strip ---- */
+
+.draft-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin: 0.1rem 0.85rem 0.85rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 9px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+}
+
+.draft-strip .label {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+}
+
+.draft-strip .value {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-align: right;
+  color: var(--gold-ink);
+  -webkit-text-fill-color: var(--gold-ink);
+}
+
+.flip-card__face--front {
+  transform: rotateY(0deg);
+  transition-delay: 0s;
+}
+
+.flip-card__face--front .flip-card__scroll {
+  display: flex;
+  flex-direction: column;
+}
+
+/* SPRO-134 (2026-08-30): the front face also carries the detail-list (moved
+   off the back). The headshot used to be capped at 42% width to leave room
+   for it; it is now full-bleed instead, and the card is sized by
+   aspect-ratio to fit both. .flip-card__scroll keeps overflow-y: auto from
+   the shared rule above as a safety net for long names/colleges. */
+.flip-card__face--front .headshot-wrap {
+  aspect-ratio: 1 / 0.84;
+  flex-shrink: 0;
+}
+
+.flip-card__face--front .jersey-num {
+  top: 0.7rem;
+  right: 0.7rem;
+  font-size: 3.1rem;
+}
+
+.flip-card__face--front .badge {
+  font-size: 0.66rem;
+  padding: 0.35rem 1.5rem 0.35rem 0.85rem;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
+}
+
+.flip-card__face--front .card-plate {
+  padding: 0.75rem 0.85rem 0.7rem;
+  flex-shrink: 0;
+}
+
+.flip-card__face--front .detail-list {
+  padding: 0 0.85rem;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.flip-card__face--back {
+  transform: rotateY(180deg);
+  visibility: hidden;
+}
+
+.flip-card.is-flipped .flip-card__face--front {
+  visibility: hidden;
+  transition-delay: 0.55s;
+}
+
+.flip-card.is-flipped .flip-card__face--back {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+/* Reduced motion: cross-fade instead of a 3D flip. */
+@media (prefers-reduced-motion: reduce) {
+  .flip-tilt {
+    transition: none;
+    transform: none !important;
+  }
+  .sheen {
+    display: none;
+  }
+  .flip-card {
+    transition: none;
+    transform: none !important;
+  }
+  .flip-card__face {
+    transition: opacity 0.15s linear;
+    backface-visibility: visible;
+    transform: none;
+    visibility: visible !important;
+    transition-delay: 0s !important;
+  }
+  .flip-card__face--front {
+    opacity: 1;
+  }
+  .flip-card__face--back {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .flip-card.is-flipped .flip-card__face--front {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .flip-card.is-flipped .flip-card__face--back {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.player-name {
+  font-family: var(--font-display);
+  /* "D'Arco Perkins-McAllister" is the longest name on the roster and wraps
+     to two lines; 0.9 keeps the descenders clear when it does. */
+  font-size: 1.95rem;
+  font-weight: 900;
+  line-height: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  margin: 0;
+}
+
+/* Generational suffix drops to its own line in gold. */
+.player-name em,
+.card-tile__name em {
+  display: block;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.5em;
+  letter-spacing: 0.06em;
+  color: var(--gold-ink);
+  -webkit-text-fill-color: var(--gold-ink);
+}
+
+.player-sub {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+  margin: 0 0 0.5rem;
+}
+
+.detail-list {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  font-size: 0.92rem;
+}
+
+.detail-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px dashed var(--border);
+}
+
+.detail-list li:last-child { border-bottom: 0; }
+
+.detail-list .label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+}
+
+/* app.js gives each value span .value -- target it by name rather than by
+   position, so the row survives anything being appended to the <li>. */
+.detail-list .value {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  text-align: right;
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+}
+
+/* SPRO-134 (2026-08-30): back-face external links (Chiefs.com profile,
+   socials search). Kept at a comfortable mobile touch-target size. */
+.card-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.card-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: var(--tab-red);
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  border: 1px solid rgba(243, 178, 27, 0.55);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.card-links a:focus-visible {
+  outline: 3px solid var(--chiefs-gold);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------- number pad */
+
+.pad-view {
+  max-width: 340px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.pad-display {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 900;
+  line-height: 1.1;
+  min-height: 2.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.6rem;
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+}
+
+.pad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.pad-key {
+  padding: 0.9rem 0;
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 600;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+}
+
+.pad-key--wide {
+  grid-column: span 1;
+}
+
+.pad-key--go {
+  background: var(--tab-red);
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  border-color: var(--chiefs-gold);
+}
+
+.pad-results {
+  text-align: left;
+  margin-top: 0.75rem;
+}
+
+.pad-result-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.4rem;
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
