@@ -21,6 +21,12 @@ html, body {
   padding: 0;
   background: var(--panel);
   color: var(--ink);
+  /* SPRO-134 (2026-08-30): iOS Safari's data detectors (phone/date/address)
+     restyle auto-linkified text -- overriding `color` alone is not enough,
+     iOS forces its own link color on top of it. Pin the fill color directly
+     so detected text (jersey numbers, dates, heights/weights, college towns)
+     still renders in the intended color instead of link-blue. */
+  -webkit-text-fill-color: var(--ink);
 }
 
 body {
@@ -41,6 +47,7 @@ button {
 .app-header {
   background: var(--chiefs-red);
   color: #fff;
+  -webkit-text-fill-color: #fff;
   border-bottom: 4px solid var(--chiefs-gold);
   padding: 0.6rem 0.75rem 0.75rem;
   position: sticky;
@@ -62,6 +69,17 @@ button {
   white-space: nowrap;
 }
 
+/* SPRO-134 (2026-08-30): inline KC arrowhead mark next to the app title
+   only. Sized in em units off the title's own font-size so it stays
+   optically aligned with the cap height at any zoom level. */
+.app-header__logo {
+  width: 1.3em;
+  height: 1.14em;
+  vertical-align: -0.18em;
+  margin-right: 0.3em;
+  flex: 0 0 auto;
+}
+
 .app-header__search {
   flex: 1 1 auto;
   min-width: 0;
@@ -69,6 +87,15 @@ button {
   border-radius: var(--radius);
   border: 1px solid transparent;
   font-size: 1rem;
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+}
+
+.app-header__search::placeholder {
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+  opacity: 1;
 }
 
 .app-header__search:focus-visible {
@@ -80,6 +107,7 @@ button {
   flex: 0 0 auto;
   background: var(--chiefs-gold);
   color: #1a1a1a;
+  -webkit-text-fill-color: #1a1a1a;
   border: none;
   border-radius: var(--radius);
   padding: 0.5rem 0.75rem;
@@ -106,6 +134,7 @@ button {
 .chip {
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
+  -webkit-text-fill-color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 999px;
   padding: 0.3rem 0.75rem;
@@ -115,6 +144,7 @@ button {
 .chip[aria-pressed="true"] {
   background: var(--chiefs-gold);
   color: #1a1a1a;
+  -webkit-text-fill-color: #1a1a1a;
   border-color: var(--chiefs-gold);
   font-weight: 700;
 }
@@ -137,6 +167,7 @@ button {
   padding: 1.25rem;
   text-align: center;
   color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
   margin-top: 1rem;
 }
 
@@ -172,6 +203,7 @@ button {
   text-align: left;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
 }
 
 .card-tile__frame {
@@ -220,6 +252,7 @@ button {
   font-size: 1.6rem;
   font-weight: 700;
   color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
   background: var(--paper);
   z-index: 2;
 }
@@ -241,12 +274,14 @@ button {
   justify-content: space-between;
   font-size: 0.8rem;
   color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
 }
 
 .badge {
   display: inline-block;
   background: var(--chiefs-red);
   color: #fff;
+  -webkit-text-fill-color: #fff;
   border-radius: 999px;
   padding: 0.05rem 0.5rem;
   font-weight: 700;
@@ -256,6 +291,7 @@ button {
 .jersey-num {
   font-weight: 700;
   color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
 }
 
 /* --------------------------------------------------------------- player */
@@ -324,15 +360,30 @@ button {
   border-radius: var(--radius);
   background: var(--paper);
   padding: 0.9rem;
-  overflow-y: auto;
   visibility: visible;
-  transition: visibility 0s linear 0.5s;
+  transition: visibility 0s linear 0.55s;
+}
+
+/* SPRO-134 (2026-08-30): scrolling lives on this inner wrapper, not on
+   .flip-card__face itself. An `overflow-y: auto` on the 3D-transformed face
+   forces WebKit to flatten/repaint the layer, which defeats
+   backface-visibility: hidden and briefly flashes the hidden face after a
+   flip. Keeping the face a clean transformed layer and scrolling the inner
+   wrapper avoids that. */
+.flip-card__scroll {
+  height: 100%;
+  overflow-y: auto;
 }
 
 .flip-card__face--front {
+  transform: rotateY(0deg);
+  transition-delay: 0s;
+}
+
+.flip-card__face--front .flip-card__scroll {
   display: flex;
   flex-direction: column;
-  transition-delay: 0s;
+  height: 100%;
 }
 
 .flip-card__face--front .card-tile__meta {
@@ -348,7 +399,7 @@ button {
 
 .flip-card.is-flipped .flip-card__face--front {
   visibility: hidden;
-  transition-delay: 0.5s;
+  transition-delay: 0.55s;
 }
 
 .flip-card.is-flipped .flip-card__face--back {
@@ -397,12 +448,14 @@ button {
 
 .player-sub {
   color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
   margin: 0 0 0.5rem;
 }
 
 .flip-hint {
   font-size: 0.8rem;
   color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
   margin-top: auto;
 }
 
@@ -423,6 +476,7 @@ button {
 
 .detail-list .label {
   color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
 }
 
 .notes-heading {
@@ -430,6 +484,7 @@ button {
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
   margin: 0.6rem 0 0.2rem;
 }
 
@@ -479,6 +534,7 @@ button {
 .pad-key--go {
   background: var(--chiefs-red);
   color: #fff;
+  -webkit-text-fill-color: #fff;
   border-color: var(--chiefs-red);
 }
 

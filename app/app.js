@@ -404,12 +404,15 @@
     var front = document.createElement("div");
     front.className = "flip-card__face flip-card__face--front";
 
-    front.appendChild(createHeadshotEl(player));
+    var scroll = document.createElement("div");
+    scroll.className = "flip-card__scroll";
+
+    scroll.appendChild(createHeadshotEl(player));
 
     var name = document.createElement("h2");
     name.className = "player-name";
     name.textContent = player.full_name || "Unknown Player";
-    front.appendChild(name);
+    scroll.appendChild(name);
 
     var meta = document.createElement("div");
     meta.className = "card-tile__meta";
@@ -421,12 +424,14 @@
     badge.textContent = player.position_abbrev || "--";
     meta.appendChild(jerseyNum);
     meta.appendChild(badge);
-    front.appendChild(meta);
+    scroll.appendChild(meta);
 
     var hint = document.createElement("p");
     hint.className = "flip-hint";
     hint.textContent = "Tap or press Enter/Space to see profile notes.";
-    front.appendChild(hint);
+    scroll.appendChild(hint);
+
+    front.appendChild(scroll);
 
     return front;
   }
@@ -434,6 +439,9 @@
   function buildCardBack(player) {
     var back = document.createElement("div");
     back.className = "flip-card__face flip-card__face--back";
+
+    var scroll = document.createElement("div");
+    scroll.className = "flip-card__scroll";
 
     var list = document.createElement("ul");
     list.className = "detail-list";
@@ -446,22 +454,24 @@
     appendDetail(list, "Jersey", player.jersey ? "#" + player.jersey : null);
     appendDetail(list, "Draft", formatDraft(player));
 
-    back.appendChild(list);
+    scroll.appendChild(list);
 
     var notesHeading = document.createElement("p");
     notesHeading.className = "notes-heading";
     notesHeading.textContent = "Auto-generated profile notes.";
-    back.appendChild(notesHeading);
+    scroll.appendChild(notesHeading);
 
     var strengths = document.createElement("p");
     strengths.className = "notes-block";
     strengths.innerHTML = "<strong>Strengths:</strong> " + escapeHtml(player.strengths || "Not available.");
-    back.appendChild(strengths);
+    scroll.appendChild(strengths);
 
     var weaknesses = document.createElement("p");
     weaknesses.className = "notes-block";
     weaknesses.innerHTML = "<strong>Areas to watch:</strong> " + escapeHtml(player.weaknesses || "Not available.");
-    back.appendChild(weaknesses);
+    scroll.appendChild(weaknesses);
+
+    back.appendChild(scroll);
 
     return back;
   }

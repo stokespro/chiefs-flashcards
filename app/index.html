@@ -3,13 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- SPRO-134 (2026-08-30): stop iOS Safari from auto-linkifying jersey
+     numbers, dates, and addresses in card text (which renders them blue). -->
+<meta name="format-detection" content="telephone=no,date=no,address=no,email=no">
 <title>Kansas City Chiefs Flashcards</title>
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
 <header class="app-header">
   <div class="app-header__row">
-    <h1 class="app-header__title">Chiefs Flashcards</h1>
+    <h1 class="app-header__title">
+      <svg class="app-header__logo" viewBox="0 0 64 56" aria-hidden="true" focusable="false">
+        <path d="M2 28 L24 4 H50 C58 4 62 12 62 28 C62 44 58 52 50 52 H24 Z" style="fill: var(--chiefs-red); stroke: var(--chiefs-gold);" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M14 28 L30 14 M14 28 L30 42" style="stroke: var(--chiefs-gold);" stroke-width="3" stroke-linecap="round" fill="none"/>
+      </svg>Chiefs Flashcards
+    </h1>
     <label class="visually-hidden" for="nameFilter">Filter players by name</label>
     <input
       type="search"
