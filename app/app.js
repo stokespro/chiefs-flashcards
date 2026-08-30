@@ -109,6 +109,8 @@
 
   function route() {
     renderCurrentView();
+    /* Navigating from a scrolled roster used to land mid-card. */
+    window.scrollTo(0, 0);
   }
 
   /* Position-group filters only make sense while browsing the roster, so
@@ -403,9 +405,16 @@
     card.setAttribute("aria-pressed", "false");
     card.setAttribute("aria-label", "Flip card for " + (player.full_name || "player") + " to see profile notes");
 
-    card.appendChild(buildCardFront(player));
+    /* WebKit does not reliably make a <button> a grid container -- it wraps
+       the children in an anonymous block, so the two faces stack vertically
+       instead of sharing one cell. The stacking happens on this plain div
+       inside the button instead. */
+    var stack = document.createElement("div");
+    stack.className = "flip-stack";
+    stack.appendChild(buildCardFront(player));
     var cardBack = buildCardBack(player);
-    card.appendChild(cardBack);
+    stack.appendChild(cardBack);
+    card.appendChild(stack);
 
     // EDIT (SPRO-134 fixup): the back face's links are real DOM children of
     // the card even while the front face is showing -- backface-visibility
