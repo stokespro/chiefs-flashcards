@@ -1,17 +1,98 @@
-/* Chiefs Flashcards -- mobile-first, no framework, system font stack. */
+/* Chiefs Flashcards -- trading-card theme, mobile-first, no build step.
+   ---------------------------------------------------------------------
+   Class names and DOM structure are unchanged from the previous
+   stylesheet, so app.js needs no edits.
+
+   THEMING: light is the base. Dark applies when the OS asks for it, or
+   when <html data-theme="dark"> is set. data-theme="light" pins light
+   even on a dark OS. Every colour is a token -- there are no
+   theme-specific rules below the token blocks.
+
+   Load-bearing rules carried over verbatim (do not "simplify"):
+     - the .flip-card backface / visibility choreography
+     - .flip-card__scroll owning overflow instead of the face
+     - -webkit-text-fill-color alongside every colour (SPRO-134)
+     - .app-header__logo object-fit: cover crop
+*/
 
 :root {
-  --chiefs-red: #E31837;
-  --chiefs-gold: #FFB81C;
-  --ink: #1a1a1a;
-  --paper: #ffffff;
-  --panel: #f4f4f5;
-  --muted: #5a5a5a;
-  --border: #d8d8db;
-  --focus: #1a1a1a;
+  /* brand constants -- identical in both themes */
+  --chiefs-red:  #E31837;
+  --chiefs-gold: #F3B21B;
+
   --radius: 10px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --radius-card: 14px;
+
+  --font-body: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --foil: linear-gradient(155deg, #FFD766 0%, var(--chiefs-gold) 28%,
+          #A9740B 52%, var(--chiefs-gold) 74%, #FFE9A8 100%);
+  --tab-red: linear-gradient(100deg, #EC2140 0%, var(--chiefs-red) 55%, #B31324 100%);
+
+  /* -- LIGHT ------------------------------------------------------ */
+  --page:         #E7E9EF;
+  --surface-top:  #FFFFFF;
+  --surface:      #F2F3F7;
+  --surface-deep: #E4E7EE;
+  --field:        #FFFFFF;
+  --ink:          #14161D;
+  --muted:        #6A7080;
+  --gold-ink:     #8F6305;   /* gold is illegible on paper -- darken for type */
+  --border:        rgba(11, 12, 16, 0.16);
+  --edge:          rgba(11, 12, 16, 0.20);
+  --panel:         rgba(11, 12, 16, 0.045);
+  --scrim:         228, 231, 238;
+  --grain:         #0B0C10;
+  --grain-alpha:   0.045;
+  --wm-alpha:      0.13;
+  --lift:          0 6px 16px -6px rgba(20, 22, 29, 0.35);
+
+  font-family: var(--font-body);
+}
+
+/* -- DARK: follows the OS unless the site pins light -------------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+  --page:         #0B0C10;
+  --surface-top:  #1C1F29;
+  --surface:      #14161D;
+  --surface-deep: #0B0C10;
+  --field:        #23262F;
+  --ink:          #F2EFE9;
+  --muted:        #8A9099;
+  --gold-ink:     #F3B21B;
+  --border:        rgba(255, 255, 255, 0.14);
+  --edge:          rgba(0, 0, 0, 0.55);
+  --panel:         rgba(255, 255, 255, 0.05);
+  --scrim:         11, 12, 16;
+  --grain:         #FFFFFF;
+  --grain-alpha:   0.05;
+  --wm-alpha:      0.20;
+  --lift:          0 10px 26px -10px rgba(0, 0, 0, 0.85);
+  }
+}
+
+/* -- DARK: forced via <html data-theme="dark"> -------------------- */
+:root[data-theme="dark"] {
+  --page:         #0B0C10;
+  --surface-top:  #1C1F29;
+  --surface:      #14161D;
+  --surface-deep: #0B0C10;
+  --field:        #23262F;
+  --ink:          #F2EFE9;
+  --muted:        #8A9099;
+  --gold-ink:     #F3B21B;
+  --border:        rgba(255, 255, 255, 0.14);
+  --edge:          rgba(0, 0, 0, 0.55);
+  --panel:         rgba(255, 255, 255, 0.05);
+  --scrim:         11, 12, 16;
+  --grain:         #FFFFFF;
+  --grain-alpha:   0.05;
+  --wm-alpha:      0.20;
+  --lift:          0 10px 26px -10px rgba(0, 0, 0, 0.85);
 }
 
 * { box-sizing: border-box; }
@@ -19,7 +100,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  background: var(--panel);
+  background: var(--page);
   color: var(--ink);
   /* SPRO-134 (2026-08-30): iOS Safari's data detectors (phone/date/address)
      restyle auto-linkified text -- overriding `color` alone is not enough,
@@ -33,6 +114,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  font-family: var(--font-body);
 }
 
 a { color: inherit; }
@@ -45,10 +127,10 @@ button {
 /* ---------------------------------------------------------------- header */
 
 .app-header {
-  background: var(--chiefs-red);
+  background: var(--tab-red);
   color: #fff;
   -webkit-text-fill-color: #fff;
-  border-bottom: 4px solid var(--chiefs-gold);
+  border-bottom: 3px solid var(--chiefs-gold);
   padding: 0.6rem 0.75rem 0.75rem;
   position: sticky;
   top: 0;
@@ -95,9 +177,10 @@ button {
   min-width: 0;
   padding: 0.5rem 0.6rem;
   border-radius: var(--radius);
-  border: 1px solid transparent;
+  border: 1px solid rgba(0, 0, 0, 0.25);
   font-size: 1rem;
-  background: var(--paper);
+  font-family: var(--font-body);
+  background: var(--field);
   color: var(--ink);
   -webkit-text-fill-color: var(--ink);
 }
@@ -113,19 +196,31 @@ button {
   outline-offset: 1px;
 }
 
-.pad-button {
+.pad-button,
+.theme-button {
   flex: 0 0 auto;
   background: var(--chiefs-gold);
-  color: #1a1a1a;
-  -webkit-text-fill-color: #1a1a1a;
+  color: #14161D;
+  -webkit-text-fill-color: #14161D;
   border: none;
   border-radius: var(--radius);
   padding: 0.5rem 0.75rem;
+  font-family: var(--font-mono);
   font-weight: 700;
   font-size: 1rem;
+  line-height: 1;
+}
+
+/* Theme toggle sits beside the number pad button; label is swapped in JS. */
+.theme-button {
+  background: rgba(0, 0, 0, 0.28);
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
 }
 
 .pad-button:focus-visible,
+.theme-button:focus-visible,
 .chip:focus-visible,
 .card-tile:focus-visible,
 .flip-card:focus-visible,
@@ -148,13 +243,15 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 999px;
   padding: 0.3rem 0.75rem;
-  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
 }
 
 .chip[aria-pressed="true"] {
   background: var(--chiefs-gold);
-  color: #1a1a1a;
-  -webkit-text-fill-color: #1a1a1a;
+  color: #14161D;
+  -webkit-text-fill-color: #14161D;
   border-color: var(--chiefs-gold);
   font-weight: 700;
 }
@@ -171,7 +268,7 @@ button {
 
 .empty-state,
 .error-panel {
-  background: var(--paper);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.25rem;
@@ -183,6 +280,7 @@ button {
 
 .error-panel code {
   background: var(--panel);
+  font-family: var(--font-mono);
   padding: 0.1rem 0.35rem;
   border-radius: 4px;
 }
@@ -203,24 +301,41 @@ button {
   .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
 }
 
+/* Gold foil band. The tile itself is the band; .card-tile__frame is the
+   card body sitting inside it -- same construction as the standalone card. */
 .card-tile {
   display: block;
   width: 100%;
-  background: var(--paper);
-  border: 2px solid var(--chiefs-gold);
-  border-radius: var(--radius);
-  padding: 0.5rem;
+  background: var(--foil);
+  border: none;
+  border-radius: var(--radius-card);
+  padding: 4px;
   text-align: left;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--lift);
   color: var(--ink);
   -webkit-text-fill-color: var(--ink);
 }
 
 .card-tile__frame {
-  border: 2px solid var(--chiefs-red);
-  border-radius: calc(var(--radius) - 2px);
-  padding: 0.35rem;
-  background: linear-gradient(180deg, #fff, var(--panel));
+  position: relative;
+  border: 1px solid var(--edge);
+  border-radius: calc(var(--radius-card) - 4px);
+  padding: 0.4rem;
+  background: radial-gradient(120% 80% at 50% 0%,
+    var(--surface-top) 0%, var(--surface) 45%, var(--surface-deep) 100%);
+  overflow: hidden;
+}
+
+/* Refractor grain, matching the standalone card. */
+.card-tile__frame::after,
+.flip-card__face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--grain-alpha);
+  background: repeating-linear-gradient(115deg, var(--grain) 0 1px, transparent 1px 5px);
+  border-radius: inherit;
 }
 
 .headshot-wrap {
@@ -229,7 +344,7 @@ button {
   aspect-ratio: 1 / 1;
   border-radius: 8px;
   overflow: hidden;
-  background: var(--paper);
+  background: var(--surface);
   margin-bottom: 0.4rem;
 }
 
@@ -239,9 +354,23 @@ button {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("assets/card-bg.png") center / cover no-repeat;
-  opacity: 0.35;
+  background: url("assets/card-bg.png") center 38% / 88% auto no-repeat;
+  opacity: var(--wm-alpha);
   pointer-events: none;
+  z-index: 0;
+}
+
+/* Bottom fade so the headshot dissolves into the card instead of ending on
+   a hard edge. Sits above the photo deliberately -- it only touches the
+   lowest slice of the image. */
+.headshot-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(180deg,
+    transparent 0%, transparent 62%, rgba(var(--scrim), 0.55) 100%);
 }
 
 .headshot-wrap img {
@@ -259,12 +388,13 @@ button {
   display: none;
   align-items: center;
   justify-content: center;
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--ink);
-  -webkit-text-fill-color: var(--ink);
-  background: var(--paper);
-  z-index: 2;
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+  background: var(--surface);
+  z-index: 3;
 }
 
 .headshot-wrap.headshot-fallback .initials {
@@ -272,34 +402,51 @@ button {
 }
 
 .card-tile__name {
-  font-weight: 700;
-  font-size: 0.9rem;
-  line-height: 1.2;
-  margin: 0 0 0.15rem;
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.15rem;
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  margin: 0 0 0.3rem;
 }
 
 .card-tile__meta {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.4rem;
   font-size: 0.8rem;
   color: var(--muted);
   -webkit-text-fill-color: var(--muted);
 }
 
+/* Angled red tab, echoing the position tab on the standalone card. The
+   extra right padding leaves room for the diagonal cut. */
 .badge {
   display: inline-block;
-  background: var(--chiefs-red);
+  background: var(--tab-red);
   color: #fff;
   -webkit-text-fill-color: #fff;
-  border-radius: 999px;
-  padding: 0.05rem 0.5rem;
-  font-weight: 700;
-  font-size: 0.75rem;
+  border-radius: 0;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  padding: 0.2rem 1.05rem 0.2rem 0.55rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .jersey-num {
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.5rem;
+  line-height: 0.8;
   color: var(--ink);
   -webkit-text-fill-color: var(--ink);
 }
@@ -314,7 +461,13 @@ button {
 .back-link {
   display: inline-block;
   margin-bottom: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   font-weight: 600;
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
   text-decoration: none;
 }
 
@@ -324,14 +477,22 @@ button {
   justify-content: space-between;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
 }
 
 .nav-btn {
-  background: var(--paper);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 0.4rem 0.9rem;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
 }
 
 .nav-btn:disabled {
@@ -347,7 +508,7 @@ button {
   position: relative;
   width: 100%;
   min-height: 460px;
-  border-radius: var(--radius);
+  border-radius: var(--radius-card);
   transition: transform 0.5s;
   transform-style: preserve-3d;
   display: block;
@@ -361,15 +522,17 @@ button {
   transform: rotateY(180deg);
 }
 
+/* Gold foil band on both faces, with the card body drawn inside it. */
 .flip-card__face {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  border: 3px solid var(--chiefs-gold);
-  border-radius: var(--radius);
-  background: var(--paper);
-  padding: 0.9rem;
+  border: none;
+  border-radius: var(--radius-card);
+  background: var(--foil);
+  padding: 5px;
+  box-shadow: var(--lift);
   visibility: visible;
   transition: visibility 0s linear 0.55s;
 }
@@ -381,8 +544,15 @@ button {
    flip. Keeping the face a clean transformed layer and scrolling the inner
    wrapper avoids that. */
 .flip-card__scroll {
+  position: relative;
+  z-index: 1;
   height: 100%;
   overflow-y: auto;
+  border-radius: calc(var(--radius-card) - 5px);
+  border: 1px solid var(--edge);
+  background: radial-gradient(120% 80% at 50% 0%,
+    var(--surface-top) 0%, var(--surface) 45%, var(--surface-deep) 100%);
+  padding: 0.85rem;
 }
 
 .flip-card__face--front {
@@ -467,12 +637,20 @@ button {
 }
 
 .player-name {
-  font-size: 1.3rem;
-  font-weight: 800;
-  margin: 0.4rem 0 0.1rem;
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  font-weight: 900;
+  line-height: 0.86;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  margin: 0.4rem 0 0.2rem;
 }
 
 .player-sub {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--muted);
   -webkit-text-fill-color: var(--muted);
   margin: 0 0 0.5rem;
@@ -487,29 +665,61 @@ button {
 
 .detail-list li {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.2rem 0;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
   border-bottom: 1px dashed var(--border);
 }
 
+.detail-list li:last-child { border-bottom: 0; }
+
 .detail-list .label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  white-space: nowrap;
   color: var(--muted);
   -webkit-text-fill-color: var(--muted);
 }
 
+/* app.js gives each value span .value -- target it by name rather than by
+   position, so the row survives anything being appended to the <li>. */
+.detail-list .value {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  text-align: right;
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+}
+
 .notes-heading {
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.16em;
   color: var(--muted);
   -webkit-text-fill-color: var(--muted);
-  margin: 0.6rem 0 0.2rem;
+  margin: 0.6rem 0 0.4rem;
 }
 
 .notes-block {
   margin: 0 0 0.6rem;
-  line-height: 1.35;
+  line-height: 1.45;
+  font-size: 0.9rem;
+}
+
+.notes-block strong {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+  -webkit-text-fill-color: var(--gold-ink);
+  display: block;
+  margin-bottom: 0.15rem;
 }
 
 /* SPRO-134 (2026-08-30): back-face external links (Chiefs.com profile,
@@ -526,14 +736,17 @@ button {
   display: inline-flex;
   align-items: center;
   min-height: 2.25rem;
-  padding: 0.4rem 0.75rem;
+  padding: 0.4rem 0.9rem;
   border-radius: 999px;
-  background: var(--chiefs-red);
+  background: var(--tab-red);
   color: #fff;
   -webkit-text-fill-color: #fff;
-  border: 1px solid var(--chiefs-gold);
-  font-weight: 700;
-  font-size: 0.85rem;
+  border: 1px solid rgba(243, 178, 27, 0.55);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   text-decoration: none;
 }
 
@@ -551,13 +764,17 @@ button {
 }
 
 .pad-display {
-  font-size: 2rem;
-  font-weight: 800;
-  min-height: 2.6rem;
-  background: var(--paper);
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 900;
+  line-height: 1.1;
+  min-height: 2.9rem;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   margin-bottom: 0.6rem;
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
 }
 
 .pad-grid {
@@ -569,11 +786,14 @@ button {
 
 .pad-key {
   padding: 0.9rem 0;
-  font-size: 1.3rem;
-  font-weight: 700;
-  background: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 600;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
 }
 
 .pad-key--wide {
@@ -581,10 +801,10 @@ button {
 }
 
 .pad-key--go {
-  background: var(--chiefs-red);
+  background: var(--tab-red);
   color: #fff;
   -webkit-text-fill-color: #fff;
-  border-color: var(--chiefs-red);
+  border-color: var(--chiefs-gold);
 }
 
 .pad-results {
@@ -596,11 +816,13 @@ button {
   display: block;
   width: 100%;
   text-align: left;
-  background: var(--paper);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 0.6rem 0.75rem;
   margin-bottom: 0.4rem;
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
 }
 
 .visually-hidden {
