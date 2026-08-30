@@ -49,6 +49,10 @@
   --grain-alpha:   0.045;
   --wm-alpha:      0.13;
   --lift:          0 6px 16px -6px rgba(20, 22, 29, 0.35);
+  --plate-tint:    0.10;
+  --glow:          0.16;
+  --sheen-blend:   overlay;
+  --num-shadow:    0 2px 14px rgba(255, 255, 255, 0.9), 0 1px 2px rgba(255, 255, 255, 0.9);
 
   font-family: var(--font-body);
 }
@@ -72,6 +76,10 @@
   --grain-alpha:   0.05;
   --wm-alpha:      0.20;
   --lift:          0 10px 26px -10px rgba(0, 0, 0, 0.85);
+  --plate-tint:    0.16;
+  --glow:          0.34;
+  --sheen-blend:   color-dodge;
+  --num-shadow:    0 2px 12px rgba(0, 0, 0, 0.8);
   }
 }
 
@@ -93,6 +101,10 @@
   --grain-alpha:   0.05;
   --wm-alpha:      0.20;
   --lift:          0 10px 26px -10px rgba(0, 0, 0, 0.85);
+  --plate-tint:    0.16;
+  --glow:          0.34;
+  --sheen-blend:   color-dodge;
+  --num-shadow:    0 2px 12px rgba(0, 0, 0, 0.8);
 }
 
 * { box-sizing: border-box; }
@@ -320,15 +332,14 @@ button {
   position: relative;
   border: 1px solid var(--edge);
   border-radius: calc(var(--radius-card) - 4px);
-  padding: 0.4rem;
+  padding: 0;
   background: radial-gradient(120% 80% at 50% 0%,
     var(--surface-top) 0%, var(--surface) 45%, var(--surface-deep) 100%);
   overflow: hidden;
 }
 
 /* Refractor grain, matching the standalone card. */
-.card-tile__frame::after,
-.flip-card__face::after {
+.card-tile__frame::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -338,14 +349,24 @@ button {
   border-radius: inherit;
 }
 
+.flip-card__face::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: var(--grain-alpha);
+  background: repeating-linear-gradient(115deg, var(--grain) 0 1px, transparent 1px 5px);
+  border-radius: calc(var(--radius-card) - 8px);
+}
+
 .headshot-wrap {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
-  border-radius: 8px;
   overflow: hidden;
   background: var(--surface);
-  margin-bottom: 0.4rem;
+  margin: 0;
 }
 
 /* SPRO-134 (2026-08-29): semi-transparent card background behind headshot photo/fallback.
@@ -354,29 +375,38 @@ button {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("assets/card-bg.png") center 38% / 88% auto no-repeat;
+  background: url("assets/card-bg.png") center 34% / 92% auto no-repeat;
   opacity: var(--wm-alpha);
   pointer-events: none;
   z-index: 0;
 }
 
-/* Bottom fade so the headshot dissolves into the card instead of ending on
-   a hard edge. Sits above the photo deliberately -- it only touches the
-   lowest slice of the image. */
-.headshot-wrap::after {
-  content: "";
+/* Tones the watermark but not the player -- app.js appends this before the
+   <img>, so the photo paints over it. Top fade seats the rail, red glow sits
+   behind the subject, vignette pulls the corners down, and the last stop
+   dissolves the photo into the nameplate. */
+.scrim {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 2;
-  background: linear-gradient(180deg,
-    transparent 0%, transparent 62%, rgba(var(--scrim), 0.55) 100%);
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(var(--scrim), 0.55) 0%, rgba(var(--scrim), 0) 32%,
+                            rgba(var(--scrim), 0.40) 76%, var(--surface) 100%),
+    radial-gradient(70% 76% at 50% 76%, rgba(227, 24, 55, var(--glow)) 0%, transparent 70%),
+    radial-gradient(80% 70% at 50% 42%, transparent 0%, rgba(var(--scrim), 0.55) 100%);
 }
 
+/* ESPN headshots are wide, transparent, and bottom-weighted. Contain them,
+   then scale up from the bottom edge so the subject fills the frame instead
+   of floating in the middle of it. */
 .headshot-wrap img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: bottom center;
+  transform: scale(1.14);
+  transform-origin: bottom center;
   display: block;
   position: relative;
   z-index: 1;
@@ -410,45 +440,54 @@ button {
   line-height: 0.92;
   text-transform: uppercase;
   letter-spacing: 0.005em;
-  margin: 0 0 0.3rem;
+  margin: 0;
 }
 
-.card-tile__meta {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
-  font-size: 0.8rem;
-  color: var(--muted);
-  -webkit-text-fill-color: var(--muted);
-}
-
-/* Angled red tab, echoing the position tab on the standalone card. The
-   extra right padding leaves room for the diagonal cut. */
+/* Angled red tab in the bottom-left of the photo. Opaque, so the type never
+   sits directly on a red jersey; the diagonal keeps it from reading as a
+   full-width banner. Extra right padding leaves room for the cut. */
 .badge {
-  display: inline-block;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 3;
   background: var(--tab-red);
   color: #fff;
   -webkit-text-fill-color: #fff;
-  border-radius: 0;
-  clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
-  padding: 0.2rem 1.05rem 0.2rem 0.55rem;
+  border-top: 1px solid rgba(243, 178, 27, 0.55);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  padding: 0.25rem 1.1rem 0.25rem 0.6rem;
   font-family: var(--font-mono);
   font-weight: 600;
-  font-size: 0.68rem;
-  letter-spacing: 0.16em;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
+/* Jersey number, top-right of the photo. */
 .jersey-num {
+  position: absolute;
+  top: 0.1rem;
+  right: 0.45rem;
+  z-index: 3;
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 1.5rem;
+  font-size: 1.9rem;
   line-height: 0.8;
+  letter-spacing: -0.02em;
   color: var(--ink);
   -webkit-text-fill-color: var(--ink);
+  text-shadow: var(--num-shadow);
+}
+
+/* Nameplate under the photo, on both the tile and the enlarged card. */
+.card-plate {
+  position: relative;
+  z-index: 1;
+  padding: 0.5rem 0.55rem 0.55rem;
+  background: linear-gradient(180deg, rgba(227, 24, 55, var(--plate-tint)), transparent 90%);
+  border-top: 1px solid rgba(243, 178, 27, 0.35);
 }
 
 /* --------------------------------------------------------------- player */
@@ -504,10 +543,45 @@ button {
   perspective: 1400px;
 }
 
+/* Tilt wrapper. The card flips inside this, so the two transforms compose
+   instead of overwriting each other. */
+.flip-tilt {
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.flip-tilt.is-live {
+  transition: transform 0.08s linear;
+}
+
+/* SIGNATURE: prismatic refractor highlight that tracks the pointer. Lives
+   inside .flip-card__scroll rather than on the face itself -- the face has
+   to stay a clean transformed layer for backface-visibility to hold (see
+   SPRO-134 above). */
+.sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  mix-blend-mode: var(--sheen-blend);
+  opacity: var(--sheen, 0);
+  transition: opacity 0.45s ease;
+  background: radial-gradient(260px 340px at var(--mx, 50%) var(--my, 40%),
+    rgba(255, 255, 255, 0.30) 0%,
+    rgba(0, 224, 255, 0.18) 26%,
+    rgba(255, 0, 190, 0.16) 46%,
+    rgba(255, 214, 0, 0.14) 62%,
+    transparent 76%);
+}
+
 .flip-card {
   position: relative;
   width: 100%;
-  min-height: 460px;
+  /* Sized like a card rather than a fixed pixel height, so the full-bleed
+     photo, nameplate, stats and draft strip all land inside the frame. */
+  aspect-ratio: 2 / 3;
+  min-height: 560px;
   border-radius: var(--radius-card);
   transition: transform 0.5s;
   transform-style: preserve-3d;
@@ -531,10 +605,24 @@ button {
   border: none;
   border-radius: var(--radius-card);
   background: var(--foil);
-  padding: 5px;
-  box-shadow: var(--lift);
+  padding: 8px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    var(--lift);
   visibility: visible;
   transition: visibility 0s linear 0.55s;
+}
+
+/* Hairline inside the foil band -- reads as the second border on a real
+   card. Pointer-events off so it never intercepts the flip click. */
+.flip-card__face::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--edge);
+  border-radius: calc(var(--radius-card) - 2px);
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* SPRO-134 (2026-08-30): scrolling lives on this inner wrapper, not on
@@ -552,7 +640,90 @@ button {
   border: 1px solid var(--edge);
   background: radial-gradient(120% 80% at 50% 0%,
     var(--surface-top) 0%, var(--surface) 45%, var(--surface-deep) 100%);
-  padding: 0.85rem;
+  /* No padding here -- the photo runs edge to edge and each section below
+     carries its own inset. The back face restores padding on its own. */
+  padding: 0;
+  isolation: isolate;
+}
+
+.flip-card__face--back .flip-card__scroll {
+  padding: 0.9rem;
+}
+
+/* ---- top rail on the enlarged card ---- */
+
+.card-rail {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.8rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Same object-fit: cover crop as the header mark -- the source PNG has
+   ~50px of transparent padding above and below the arrowhead. */
+.card-rail__mark {
+  width: 1.9rem;
+  height: 1.24rem;
+  flex: 0 0 auto;
+  object-fit: cover;
+}
+
+.card-rail__team {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+}
+
+.card-rail__team span {
+  color: var(--chiefs-red);
+  -webkit-text-fill-color: var(--chiefs-red);
+}
+
+.card-rail__serial {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+}
+
+/* ---- draft provenance strip ---- */
+
+.draft-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin: 0.1rem 0.85rem 0.85rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 9px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+}
+
+.draft-strip .label {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+}
+
+.draft-strip .value {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-align: right;
+  color: var(--gold-ink);
+  -webkit-text-fill-color: var(--gold-ink);
 }
 
 .flip-card__face--front {
@@ -566,25 +737,36 @@ button {
   height: 100%;
 }
 
-/* SPRO-134 (2026-08-30): the front face now also carries the detail-list
-   (moved off the back), so the headshot is capped well below full card
-   width to leave room for that content without relying on scroll at
-   narrow (375px) viewports. .flip-card__scroll still keeps overflow-y:
-   auto from the shared rule above as a safety net for long names/colleges. */
+/* SPRO-134 (2026-08-30): the front face also carries the detail-list (moved
+   off the back). The headshot used to be capped at 42% width to leave room
+   for it; it is now full-bleed instead, and the card is sized by
+   aspect-ratio to fit both. .flip-card__scroll keeps overflow-y: auto from
+   the shared rule above as a safety net for long names/colleges. */
 .flip-card__face--front .headshot-wrap {
-  max-width: 42%;
-  margin: 0 auto 0.5rem;
+  aspect-ratio: 1 / 0.84;
   flex-shrink: 0;
 }
 
-.flip-card__face--front .card-tile__meta {
-  justify-content: flex-start;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+.flip-card__face--front .jersey-num {
+  top: 0.15rem;
+  right: 0.7rem;
+  font-size: 3.1rem;
+}
+
+.flip-card__face--front .badge {
+  font-size: 0.66rem;
+  padding: 0.35rem 1.5rem 0.35rem 0.85rem;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
+}
+
+.flip-card__face--front .card-plate {
+  padding: 0.75rem 0.85rem 0.7rem;
   flex-shrink: 0;
 }
 
 .flip-card__face--front .detail-list {
+  padding: 0 0.85rem;
+  margin-bottom: 0.5rem;
   flex-shrink: 0;
 }
 
@@ -605,6 +787,13 @@ button {
 
 /* Reduced motion: cross-fade instead of a 3D flip. */
 @media (prefers-reduced-motion: reduce) {
+  .flip-tilt {
+    transition: none;
+    transform: none !important;
+  }
+  .sheen {
+    display: none;
+  }
   .flip-card {
     transition: none;
     transform: none !important;
@@ -638,12 +827,26 @@ button {
 
 .player-name {
   font-family: var(--font-display);
-  font-size: 2.1rem;
+  /* "D'Arco Perkins-McAllister" is the longest name on the roster and wraps
+     to two lines; 0.9 keeps the descenders clear when it does. */
+  font-size: 1.95rem;
   font-weight: 900;
-  line-height: 0.86;
+  line-height: 0.9;
   text-transform: uppercase;
   letter-spacing: 0.005em;
-  margin: 0.4rem 0 0.2rem;
+  margin: 0;
+}
+
+/* Generational suffix drops to its own line in gold. */
+.player-name em,
+.card-tile__name em {
+  display: block;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.5em;
+  letter-spacing: 0.06em;
+  color: var(--gold-ink);
+  -webkit-text-fill-color: var(--gold-ink);
 }
 
 .player-sub {

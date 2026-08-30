@@ -168,6 +168,12 @@
     var wrap = document.createElement("div");
     wrap.className = "headshot-wrap";
 
+    /* Tones the watermark without dimming the player, who is appended
+       after it. */
+    var scrim = document.createElement("div");
+    scrim.className = "scrim";
+    wrap.appendChild(scrim);
+
     var img = document.createElement("img");
     img.loading = "lazy";
     img.alt = altText || player.headshot_alt || player.full_name || "Player headshot";
@@ -190,6 +196,70 @@
     wrap.appendChild(img);
     wrap.appendChild(initialsEl);
     return wrap;
+  }
+
+  /* "Kenneth Walker III" sets as KENNETH WALKER with a gold III beneath it.
+     Three players on the roster carry a suffix. */
+  var NAME_SUFFIX = /\s+(Jr\.?|Sr\.?|I{2,3}|IV|VI?)$/;
+
+  function fillPlayerName(el, fullName) {
+    var name = fullName || "Unknown Player";
+    var m = name.match(NAME_SUFFIX);
+    if (!m) { el.textContent = name; return; }
+    el.appendChild(document.createTextNode(name.slice(0, m.index)));
+    var suffix = document.createElement("em");
+    suffix.textContent = m[1];
+    el.appendChild(suffix);
+  }
+
+  /* Jersey number and position ride ON the headshot, not in a row beneath
+     it. Appended after the <img> so they paint on top of it. */
+  function appendCardBadges(wrap, player, useFullPosition) {
+    if (player.jersey) {
+      var num = document.createElement("span");
+      num.className = "jersey-num";
+      num.textContent = player.jersey;
+      wrap.appendChild(num);
+    }
+    var pos = useFullPosition
+      ? (player.position_name || player.position_abbrev)
+      : player.position_abbrev;
+    if (pos) {
+      var badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = pos;
+      wrap.appendChild(badge);
+    }
+  }
+
+  // Top rail: arrowhead, team wordmark, and a position/number serial.
+  function buildCardRail(player) {
+    var rail = document.createElement("div");
+    rail.className = "card-rail";
+
+    var mark = document.createElement("img");
+    mark.className = "card-rail__mark";
+    mark.src = "./assets/card-bg.png";
+    mark.alt = "";
+    rail.appendChild(mark);
+
+    var team = document.createElement("span");
+    team.className = "card-rail__team";
+    team.appendChild(document.createTextNode("Kansas City "));
+    var city = document.createElement("span");
+    city.textContent = "Chiefs";
+    team.appendChild(city);
+    rail.appendChild(team);
+
+    var serial = document.createElement("span");
+    serial.className = "card-rail__serial";
+    var num = player.jersey ? String(player.jersey) : "";
+    if (num.length === 1) { num = "0" + num; }
+    serial.textContent = [player.position_abbrev, num]
+      .filter(function (v) { return v; }).join(" \u00B7 ");
+    rail.appendChild(serial);
+
+    return rail;
   }
 
   // ---------------------------------------------------------------- grid
@@ -233,24 +303,17 @@
     var frame = document.createElement("div");
     frame.className = "card-tile__frame";
 
-    frame.appendChild(createHeadshotEl(player));
+    var headshot = createHeadshotEl(player);
+    appendCardBadges(headshot, player, false);
+    frame.appendChild(headshot);
 
+    var plate = document.createElement("div");
+    plate.className = "card-plate";
     var name = document.createElement("p");
     name.className = "card-tile__name";
-    name.textContent = player.full_name || "Unknown Player";
-    frame.appendChild(name);
-
-    var meta = document.createElement("div");
-    meta.className = "card-tile__meta";
-    var jerseyNum = document.createElement("span");
-    jerseyNum.className = "jersey-num";
-    jerseyNum.textContent = player.jersey ? "#" + player.jersey : "";
-    var badge = document.createElement("span");
-    badge.className = "badge";
-    badge.textContent = player.position_abbrev || "--";
-    meta.appendChild(jerseyNum);
-    meta.appendChild(badge);
-    frame.appendChild(meta);
+    fillPlayerName(name, player.full_name);
+    plate.appendChild(name);
+    frame.appendChild(plate);
 
     tile.appendChild(frame);
 
@@ -379,8 +442,15 @@
       }
     });
 
-    scene.appendChild(card);
+    /* Tilt lives on a wrapper so it composes with -- rather than fights --
+       the rotateY(180deg) the card itself uses to flip. */
+    var tilt = document.createElement("div");
+    tilt.className = "flip-tilt";
+    tilt.appendChild(card);
+    scene.appendChild(tilt);
     wrap.appendChild(scene);
+
+    attachRefractor(scene, tilt);
     viewEl.appendChild(wrap);
 
     wireSwipe(scene, function () { goToIndex(ids, currentIndex - 1); },
@@ -428,6 +498,44 @@
 
   // ------------------------------------------------------- card faces
 
+  /* Refractor: the card tilts toward the pointer and a prismatic highlight
+     tracks it. Both are driven by CSS custom properties so the paint work
+     stays on the compositor. Disabled outright under reduced motion. */
+  function attachRefractor(scene, tilt) {
+    var calm = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (calm.matches) { return; }
+
+    var sheens = tilt.querySelectorAll(".sheen");
+
+    function move(e) {
+      var r = tilt.getBoundingClientRect();
+      if (!r.width || !r.height) { return; }
+      var x = (e.clientX - r.left) / r.width;
+      var y = (e.clientY - r.top) / r.height;
+      tilt.classList.add("is-live");
+      tilt.style.setProperty("--ry", ((x - 0.5) * 14).toFixed(2) + "deg");
+      tilt.style.setProperty("--rx", ((y - 0.5) * -11).toFixed(2) + "deg");
+      for (var i = 0; i < sheens.length; i++) {
+        sheens[i].style.setProperty("--mx", (x * 100).toFixed(1) + "%");
+        sheens[i].style.setProperty("--my", (y * 100).toFixed(1) + "%");
+        sheens[i].style.setProperty("--sheen", "1");
+      }
+    }
+
+    function rest() {
+      tilt.classList.remove("is-live");
+      tilt.style.setProperty("--rx", "0deg");
+      tilt.style.setProperty("--ry", "0deg");
+      for (var i = 0; i < sheens.length; i++) {
+        sheens[i].style.setProperty("--sheen", "0");
+      }
+    }
+
+    scene.addEventListener("pointermove", move);
+    scene.addEventListener("pointerleave", rest);
+    scene.addEventListener("pointercancel", rest);
+  }
+
   function buildCardFront(player) {
     var front = document.createElement("div");
     front.className = "flip-card__face flip-card__face--front";
@@ -435,36 +543,48 @@
     var scroll = document.createElement("div");
     scroll.className = "flip-card__scroll";
 
-    scroll.appendChild(createHeadshotEl(player));
+    var sheen = document.createElement("div");
+    sheen.className = "sheen";
+    scroll.appendChild(sheen);
 
+    scroll.appendChild(buildCardRail(player));
+
+    var headshot = createHeadshotEl(player);
+    appendCardBadges(headshot, player, true);
+    scroll.appendChild(headshot);
+
+    var plate = document.createElement("div");
+    plate.className = "card-plate";
     var name = document.createElement("h2");
     name.className = "player-name";
-    name.textContent = player.full_name || "Unknown Player";
-    scroll.appendChild(name);
-
-    var meta = document.createElement("div");
-    meta.className = "card-tile__meta";
-    var jerseyNum = document.createElement("span");
-    jerseyNum.className = "jersey-num";
-    jerseyNum.textContent = player.jersey ? "#" + player.jersey : "";
-    var badge = document.createElement("span");
-    badge.className = "badge";
-    badge.textContent = player.position_abbrev || "--";
-    meta.appendChild(jerseyNum);
-    meta.appendChild(badge);
-    scroll.appendChild(meta);
+    fillPlayerName(name, player.full_name);
+    plate.appendChild(name);
+    scroll.appendChild(plate);
 
     var list = document.createElement("ul");
     list.className = "detail-list";
 
-    appendDetail(list, "Position", player.position_name || player.position_abbrev);
+    /* Position is omitted here on purpose -- the tab on the photo already
+       carries it in full. */
     appendDetail(list, "Years in league", formatExperience(player));
     appendDetail(list, "College", player.college);
     appendDetail(list, "Height / Weight", formatHeightWeight(player));
     appendDetail(list, "Age", player.age);
-    appendDetail(list, "Draft", formatDraft(player));
 
     scroll.appendChild(list);
+
+    // Draft is provenance, not a physical attribute -- own strip.
+    var draft = document.createElement("div");
+    draft.className = "draft-strip";
+    var draftLabel = document.createElement("span");
+    draftLabel.className = "label";
+    draftLabel.textContent = "Draft";
+    var draftValue = document.createElement("span");
+    draftValue.className = "value";
+    draftValue.textContent = formatDraft(player);
+    draft.appendChild(draftLabel);
+    draft.appendChild(draftValue);
+    scroll.appendChild(draft);
 
     front.appendChild(scroll);
 
