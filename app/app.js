@@ -150,12 +150,6 @@
     return out.toUpperCase() || "?";
   }
 
-  function escapeHtml(value) {
-    var div = document.createElement("div");
-    div.textContent = value === null || value === undefined ? "" : String(value);
-    return div.innerHTML;
-  }
-
   function createHeadshotEl(player, altText) {
     var wrap = document.createElement("div");
     wrap.className = "headshot-wrap";
@@ -224,7 +218,47 @@
     }
   }
 
-  // Top rail: arrowhead, team wordmark, and a position/number serial.
+  /* Deep link to the Biography section of the club profile. Cross-origin
+     pages can only be scrolled via a URL fragment -- there is no way to
+     drive another site's scroll position from here -- so this depends on
+     chiefs.com actually exposing an element with this id. Verify in devtools
+     and change this one constant if the id differs; a wrong fragment is
+     harmless (the page just opens at the top). */
+  var BIO_HASH = "#biography";
+
+  function buildRailActions(player) {
+    var actions = document.createElement("div");
+    actions.className = "card-rail__actions";
+
+    var fullName = (player.full_name || "").trim();
+    var slug = playerSlug(player);
+
+    if (slug) {
+      var bio = document.createElement("a");
+      bio.className = "rail-btn";
+      bio.href = "https://www.chiefs.com/team/players-roster/" + slug + "/" + BIO_HASH;
+      bio.textContent = "Bio";
+      bio.target = "_blank";
+      bio.rel = "noopener noreferrer";
+      bio.setAttribute("aria-label", "Read " + (fullName || "player") + "'s biography on Chiefs.com");
+      actions.appendChild(bio);
+    }
+
+    if (fullName) {
+      var x = document.createElement("a");
+      x.className = "rail-btn rail-btn--x";
+      x.href = "https://x.com/search?q=" + encodeURIComponent(fullName + " Chiefs");
+      x.textContent = "\u2715";
+      x.target = "_blank";
+      x.rel = "noopener noreferrer";
+      x.setAttribute("aria-label", "Search X for " + fullName);
+      actions.appendChild(x);
+    }
+
+    return actions;
+  }
+
+  // Top rail: arrowhead, team wordmark, and the Bio / X actions.
   function buildCardRail(player) {
     var rail = document.createElement("div");
     rail.className = "card-rail";
@@ -243,13 +277,7 @@
     team.appendChild(city);
     rail.appendChild(team);
 
-    var serial = document.createElement("span");
-    serial.className = "card-rail__serial";
-    var num = player.jersey ? String(player.jersey) : "";
-    if (num.length === 1) { num = "0" + num; }
-    serial.textContent = [player.position_abbrev, num]
-      .filter(function (v) { return v; }).join(" \u00B7 ");
-    rail.appendChild(serial);
+    rail.appendChild(buildRailActions(player));
 
     return rail;
   }
@@ -423,75 +451,19 @@
 
 
     var scene = document.createElement("div");
-    scene.className = "flip-scene";
+    scene.className = "card-scene";
 
-    var card = document.createElement("button");
-    card.type = "button";
-    card.className = "flip-card";
-    card.setAttribute("role", "button");
-    card.setAttribute("tabindex", "0");
-    card.setAttribute("aria-pressed", "false");
-    card.setAttribute("aria-label", "Flip card for " + (player.full_name || "player") + " to see profile notes");
+    /* A plain div, not a <button>: the card no longer toggles anything, and
+       it now contains its own links (Bio / X), which cannot legally nest
+       inside a button. */
+    var card = document.createElement("div");
+    card.className = "player-card";
+    card.appendChild(buildCardFront(player));
 
-    /* WebKit does not reliably make a <button> a grid container -- it wraps
-       the children in an anonymous block, so the two faces stack vertically
-       instead of sharing one cell. The stacking happens on this plain div
-       inside the button instead. */
-    var stack = document.createElement("div");
-    stack.className = "flip-stack";
-    stack.appendChild(buildCardFront(player));
-    var cardBack = buildCardBack(player);
-    stack.appendChild(cardBack);
-    card.appendChild(stack);
-
-    // EDIT (SPRO-134 fixup): the back face's links are real DOM children of
-    // the card even while the front face is showing -- backface-visibility
-    // and (under prefers-reduced-motion) opacity/visibility hide them
-    // visually but do not remove them from the tab order. Keep them out of
-    // the tab order and hidden from AT until the card is actually flipped.
-    var backLinks = cardBack.querySelectorAll(".card-links a");
-
-    function setBackLinksFocusable(focusable) {
-      for (var i = 0; i < backLinks.length; i++) {
-        if (focusable) {
-          backLinks[i].setAttribute("tabindex", "0");
-          backLinks[i].removeAttribute("aria-hidden");
-        } else {
-          backLinks[i].setAttribute("tabindex", "-1");
-          backLinks[i].setAttribute("aria-hidden", "true");
-        }
-      }
-    }
-    setBackLinksFocusable(false);
-
-    function toggleFlip() {
-      var flipped = card.classList.toggle("is-flipped");
-      card.setAttribute("aria-pressed", flipped ? "true" : "false");
-      setBackLinksFocusable(flipped);
-    }
-
-    card.addEventListener("click", toggleFlip);
-    card.addEventListener("keydown", function (evt) {
-      // EDIT (SPRO-134 fixup): only the card itself should trigger flip/nav
-      // on Enter/Space/arrows. Without this guard, keydown events bubbling
-      // up from a focused back-face link (e.g. Enter to activate it) hit
-      // this handler too, which preventDefault()s the link's activation and
-      // flips the card out from under the user's focus.
-      if (evt.target !== card) { return; }
-      if (evt.key === "Enter" || evt.key === " " || evt.key === "Spacebar") {
-        evt.preventDefault();
-        toggleFlip();
-      } else if (evt.key === "ArrowLeft") {
-        goToIndex(ids, currentIndex - 1);
-      } else if (evt.key === "ArrowRight") {
-        goToIndex(ids, currentIndex + 1);
-      }
-    });
-
-    /* Tilt lives on a wrapper so it composes with -- rather than fights --
-       the rotateY(180deg) the card itself uses to flip. */
+    // Tilt lives on its own wrapper so the transform is independent of the
+    // card's own layout.
     var tilt = document.createElement("div");
-    tilt.className = "flip-tilt";
+    tilt.className = "card-tilt";
     tilt.appendChild(card);
     scene.appendChild(tilt);
     wrap.appendChild(scene);
@@ -504,7 +476,9 @@
 
     document.addEventListener("keydown", documentArrowHandler);
     function documentArrowHandler(evt) {
-      if (document.activeElement === card) { return; } // handled above already
+      // Don't hijack arrows while the user is typing in the roster search.
+      var tag = (document.activeElement && document.activeElement.tagName) || "";
+      if (tag === "INPUT" || tag === "TEXTAREA") { return; }
       if (evt.key === "ArrowLeft") { goToIndex(ids, currentIndex - 1); }
       if (evt.key === "ArrowRight") { goToIndex(ids, currentIndex + 1); }
     }
@@ -513,8 +487,6 @@
       document.removeEventListener("keydown", documentArrowHandler);
       window.removeEventListener("hashchange", cleanup);
     });
-
-    card.focus();
   }
 
   function goToIndex(ids, index) {
@@ -584,10 +556,10 @@
 
   function buildCardFront(player) {
     var front = document.createElement("div");
-    front.className = "flip-card__face flip-card__face--front";
+    front.className = "player-card__face";
 
     var scroll = document.createElement("div");
-    scroll.className = "flip-card__scroll";
+    scroll.className = "player-card__body";
 
     var sheen = document.createElement("div");
     sheen.className = "sheen";
@@ -637,69 +609,7 @@
     return front;
   }
 
-  function buildCardBack(player) {
-    var back = document.createElement("div");
-    back.className = "flip-card__face flip-card__face--back";
 
-    var scroll = document.createElement("div");
-    scroll.className = "flip-card__scroll";
-
-    var sheen = document.createElement("div");
-    sheen.className = "sheen";
-    scroll.appendChild(sheen);
-
-    // Same rail as the front, so the two sides read as one card.
-    scroll.appendChild(buildCardRail(player));
-
-    var plate = document.createElement("div");
-    plate.className = "card-plate";
-    var name = document.createElement("h2");
-    name.className = "player-name";
-    fillPlayerName(name, player.full_name);
-    plate.appendChild(name);
-    var sub = document.createElement("p");
-    sub.className = "player-sub";
-    sub.textContent = player.position_name || player.position_abbrev || "";
-    plate.appendChild(sub);
-    scroll.appendChild(plate);
-
-    /* The body is the only scrolling region -- the card itself keeps the
-       height the front face sets. Swap what goes in here to change the back
-       of the card; the surrounding structure stays put. */
-    var body = document.createElement("div");
-    body.className = "card-bio";
-
-    var notesHeading = document.createElement("p");
-    notesHeading.className = "notes-heading";
-    notesHeading.textContent = "Auto-generated profile notes.";
-    body.appendChild(notesHeading);
-
-    var strengths = document.createElement("p");
-    strengths.className = "notes-block";
-    strengths.innerHTML = "<strong>Strengths:</strong> " + escapeHtml(player.strengths || "Not available.");
-    body.appendChild(strengths);
-
-    var weaknesses = document.createElement("p");
-    weaknesses.className = "notes-block";
-    weaknesses.innerHTML = "<strong>Areas to watch:</strong> " + escapeHtml(player.weaknesses || "Not available.");
-    body.appendChild(weaknesses);
-
-    scroll.appendChild(body);
-
-    var links = buildCardLinks(player);
-    if (links) { scroll.appendChild(links); }
-
-    back.appendChild(scroll);
-
-    return back;
-  }
-
-  // EDIT 5 (SPRO-134): back-face links -- Chiefs.com profile (slug derived
-  // from full_name; roster.json has no slug field) and an X/Twitter search
-  // link (roster.json has no social handles, so this is a labeled search,
-  // not a fabricated profile URL). Built with DOM APIs (createElement +
-  // .href/.textContent), never innerHTML, since these values ultimately
-  // derive from player data.
   function playerSlug(player) {
     var name = ((player && player.full_name) || "").trim();
     if (!name) { return ""; }
@@ -712,34 +622,6 @@
     return slug;
   }
 
-  function buildCardLinks(player) {
-    var fullName = (player.full_name || "").trim();
-    if (!fullName) { return null; }
-
-    var container = document.createElement("div");
-    container.className = "card-links";
-
-    var slug = playerSlug(player);
-    if (slug) {
-      var profileLink = document.createElement("a");
-      profileLink.href = "https://www.chiefs.com/team/players-roster/" + slug + "/";
-      profileLink.textContent = "Chiefs.com profile";
-      profileLink.target = "_blank";
-      profileLink.rel = "noopener noreferrer";
-      profileLink.addEventListener("click", function (evt) { evt.stopPropagation(); });
-      container.appendChild(profileLink);
-    }
-
-    var socialsLink = document.createElement("a");
-    socialsLink.href = "https://x.com/search?q=" + encodeURIComponent(fullName + " Chiefs");
-    socialsLink.textContent = "Search socials";
-    socialsLink.target = "_blank";
-    socialsLink.rel = "noopener noreferrer";
-    socialsLink.addEventListener("click", function (evt) { evt.stopPropagation(); });
-    container.appendChild(socialsLink);
-
-    return container;
-  }
 
   function appendDetail(list, label, value) {
     var li = document.createElement("li");

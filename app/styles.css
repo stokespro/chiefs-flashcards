@@ -8,9 +8,11 @@
    even on a dark OS. Every colour is a token -- there are no
    theme-specific rules below the token blocks.
 
+   The card no longer flips -- the back face and its 3D choreography were
+   removed; Bio / X links in the top rail replaced it.
+
    Load-bearing rules carried over verbatim (do not "simplify"):
-     - the .flip-card backface / visibility choreography
-     - .flip-card__scroll owning overflow instead of the face
+     - .player-card__body owning overflow instead of the face
      - -webkit-text-fill-color alongside every colour (SPRO-134)
      - .app-header__logo object-fit: cover crop
 */
@@ -225,7 +227,7 @@ button {
 .theme-button:focus-visible,
 .chip:focus-visible,
 .card-tile:focus-visible,
-.flip-card:focus-visible,
+.player-card:focus-visible,
 .pad-key:focus-visible {
   outline: 3px solid var(--chiefs-gold);
   outline-offset: 2px;
@@ -374,7 +376,7 @@ button {
   border-radius: inherit;
 }
 
-.flip-card__face::after {
+.player-card__face::after {
   content: "";
   position: absolute;
   inset: 8px;
@@ -524,26 +526,22 @@ button {
   margin: 0 auto;
 }
 
-.flip-scene {
+.card-scene {
   perspective: 1400px;
 }
 
-/* Tilt wrapper. The card flips inside this, so the two transforms compose
-   instead of overwriting each other. */
-.flip-tilt {
+/* Tilt wrapper, kept separate from the card's own layout. */
+.card-tilt {
   transform-style: preserve-3d;
   transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
   transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.flip-tilt.is-live {
+.card-tilt.is-live {
   transition: transform 0.08s linear;
 }
 
-/* SIGNATURE: prismatic refractor highlight that tracks the pointer. Lives
-   inside .flip-card__scroll rather than on the face itself -- the face has
-   to stay a clean transformed layer for backface-visibility to hold (see
-   SPRO-134 above). */
+/* SIGNATURE: prismatic refractor highlight that tracks the pointer. */
 .sheen {
   position: absolute;
   inset: 0;
@@ -560,7 +558,7 @@ button {
     transparent 76%);
 }
 
-.flip-card {
+.player-card {
   position: relative;
   width: 100%;
   display: block;
@@ -577,28 +575,12 @@ button {
 
 /* Both faces share one grid cell, so the card sizes itself to the taller of
    the two -- no fixed height, no interior scrolling. This lives on a plain
-   div rather than on .flip-card itself: WebKit does not reliably treat a
+   div rather than on .player-card itself: WebKit does not reliably treat a
    <button> as a grid container and would stack the faces vertically. */
-.flip-stack {
-  display: grid;
-  transform-style: preserve-3d;
-}
-
-.flip-card.is-flipped {
-  transform: rotateY(180deg);
-}
-
 /* Gold foil band on both faces, with the card body drawn inside it. */
-.flip-card__face {
+.player-card__face {
   position: relative;
-  grid-area: 1 / 1;
-  /* Grid so .flip-card__scroll stretches to the full face height. Both faces
-     share one grid cell, so the shorter one (the back) is stretched to the
-     taller one -- without this the back panel stopped at its own content and
-     left bare foil below it. */
   display: grid;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
   border: none;
   border-radius: var(--radius-card);
   background: var(--foil);
@@ -606,13 +588,11 @@ button {
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.35) inset,
     var(--lift);
-  visibility: visible;
-  transition: visibility 0s linear 0.55s;
 }
 
 /* Hairline inside the foil band -- reads as the second border on a real
-   card. Pointer-events off so it never intercepts the flip click. */
-.flip-card__face::before {
+   card. Pointer-events off so it never intercepts clicks. */
+.player-card__face::before {
   content: "";
   position: absolute;
   inset: 3px;
@@ -622,14 +602,11 @@ button {
   z-index: 2;
 }
 
-/* SPRO-134 (2026-08-30): overflow is handled on this inner wrapper, never on
-   .flip-card__face itself. An overflow value on the 3D-transformed face
-   forces WebKit to flatten/repaint the layer, which defeats
-   backface-visibility: hidden and briefly flashes the hidden face after a
-   flip. Keeping the face a clean transformed layer avoids that.
-   `hidden` (not `auto`) because the card now grows to fit its content --
-   this only clips the full-bleed photo to the rounded corners. */
-.flip-card__scroll {
+/* Overflow lives on this inner wrapper rather than on the face, which keeps
+   the tilted layer clean for the compositor. `hidden` (not `auto`) because
+   the card grows to fit its content -- this only clips the full-bleed photo
+   to the rounded corners. */
+.player-card__body {
   position: relative;
   z-index: 1;
   height: auto;
@@ -639,66 +616,9 @@ button {
   background: radial-gradient(120% 80% at 50% 0%,
     var(--surface-top) 0%, var(--surface) 45%, var(--surface-deep) 100%);
   /* No padding here -- the photo runs edge to edge and each section below
-     carries its own inset. The back face restores padding on its own. */
+     carries its own inset. */
   padding: 0;
   isolation: isolate;
-}
-
-/* Rail and nameplate are fixed; only the body scrolls, so the back keeps
-   exactly the height the front sets. min-height: 0 on the scrolling
-   row is required -- a grid item defaults to min-content and would refuse
-   to shrink, pushing the links off the card instead of scrolling. */
-.flip-card__face--back .flip-card__scroll {
-  padding: 0;
-  display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
-}
-
-.flip-card__face--back .card-plate {
-  padding: 0.75rem 0.85rem 0.6rem;
-}
-
-.card-bio {
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  padding: 0.1rem 0.85rem 0.2rem;
-}
-
-.card-bio p {
-  margin: 0 0 0.6rem;
-  font-size: 0.88rem;
-  line-height: 1.5;
-}
-
-.card-bio p:last-child { margin-bottom: 0; }
-
-.notes-heading {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--muted);
-  -webkit-text-fill-color: var(--muted);
-  margin: 0 0 0.5rem;
-}
-
-.notes-block strong {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gold-ink);
-  -webkit-text-fill-color: var(--gold-ink);
-  display: block;
-  margin-bottom: 0.15rem;
-}
-
-.flip-card__face--back .card-links {
-  padding: 0.6rem 0.85rem 0.85rem;
-  margin-top: 0;
 }
 
 /* ---- top rail on the enlarged card ---- */
@@ -736,13 +656,45 @@ button {
   -webkit-text-fill-color: var(--chiefs-red);
 }
 
-.card-rail__serial {
+.card-rail__actions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Bio / X links. Sized to a real touch target (~34px) despite the small
+   label, since they sit in a tight rail. */
+.rail-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.9rem;
+  padding: 0 0.7rem;
+  border-radius: 999px;
+  background: var(--tab-red);
+  border: 1px solid rgba(243, 178, 27, 0.55);
   font-family: var(--font-mono);
+  font-weight: 600;
   font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  color: var(--muted);
-  -webkit-text-fill-color: var(--muted);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+}
+
+.rail-btn--x {
+  padding: 0;
+  width: 1.9rem;
+  font-size: 0.8rem;
+  letter-spacing: 0;
+}
+
+.rail-btn:focus-visible {
+  outline: 3px solid var(--chiefs-gold);
+  outline-offset: 2px;
 }
 
 /* ---- draft provenance strip ---- */
@@ -777,12 +729,12 @@ button {
   -webkit-text-fill-color: var(--gold-ink);
 }
 
-.flip-card__face--front {
+.player-card__face--front {
   transform: rotateY(0deg);
   transition-delay: 0s;
 }
 
-.flip-card__face--front .flip-card__scroll {
+.player-card__face--front .player-card__body {
   display: flex;
   flex-direction: column;
 }
@@ -790,85 +742,44 @@ button {
 /* SPRO-134 (2026-08-30): the front face also carries the detail-list (moved
    off the back). The headshot used to be capped at 42% width to leave room
    for it; it is now full-bleed instead, and the card is sized by
-   aspect-ratio to fit both. .flip-card__scroll keeps overflow-y: auto from
+   aspect-ratio to fit both. .player-card__body keeps overflow-y: auto from
    the shared rule above as a safety net for long names/colleges. */
-.flip-card__face--front .headshot-wrap {
+.player-card__face--front .headshot-wrap {
   aspect-ratio: 1 / 0.84;
   flex-shrink: 0;
 }
 
-.flip-card__face--front .jersey-num {
+.player-card__face--front .jersey-num {
   top: 0.7rem;
   right: 0.7rem;
   font-size: 3.1rem;
 }
 
-.flip-card__face--front .badge {
+.player-card__face--front .badge {
   font-size: 0.66rem;
   padding: 0.35rem 1.5rem 0.35rem 0.85rem;
   clip-path: polygon(0 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
 }
 
-.flip-card__face--front .card-plate {
+.player-card__face--front .card-plate {
   padding: 0.75rem 0.85rem 0.7rem;
   flex-shrink: 0;
 }
 
-.flip-card__face--front .detail-list {
+.player-card__face--front .detail-list {
   padding: 0 0.85rem;
   margin-bottom: 0.5rem;
   flex-shrink: 0;
 }
 
-.flip-card__face--back {
-  transform: rotateY(180deg);
-  visibility: hidden;
-}
-
-.flip-card.is-flipped .flip-card__face--front {
-  visibility: hidden;
-  transition-delay: 0.55s;
-}
-
-.flip-card.is-flipped .flip-card__face--back {
-  visibility: visible;
-  transition-delay: 0s;
-}
-
-/* Reduced motion: cross-fade instead of a 3D flip. */
+/* Reduced motion: no tilt, no sheen. */
 @media (prefers-reduced-motion: reduce) {
-  .flip-tilt {
+  .card-tilt {
     transition: none;
     transform: none !important;
   }
   .sheen {
     display: none;
-  }
-  .flip-card {
-    transition: none;
-    transform: none !important;
-  }
-  .flip-card__face {
-    transition: opacity 0.15s linear;
-    backface-visibility: visible;
-    transform: none;
-    visibility: visible !important;
-    transition-delay: 0s !important;
-  }
-  .flip-card__face--front {
-    opacity: 1;
-  }
-  .flip-card__face--back {
-    opacity: 0;
-    pointer-events: none;
-  }
-  .flip-card.is-flipped .flip-card__face--front {
-    opacity: 0;
-    pointer-events: none;
-  }
-  .flip-card.is-flipped .flip-card__face--back {
-    opacity: 1;
-    pointer-events: auto;
   }
 }
 
@@ -942,38 +853,6 @@ button {
   text-align: right;
   color: var(--ink);
   -webkit-text-fill-color: var(--ink);
-}
-
-/* SPRO-134 (2026-08-30): back-face external links (Chiefs.com profile,
-   socials search). Kept at a comfortable mobile touch-target size. */
-.card-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.4rem;
-}
-
-.card-links a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.25rem;
-  padding: 0.4rem 0.9rem;
-  border-radius: 999px;
-  background: var(--tab-red);
-  color: #fff;
-  -webkit-text-fill-color: #fff;
-  border: 1px solid rgba(243, 178, 27, 0.55);
-  font-family: var(--font-mono);
-  font-weight: 600;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-decoration: none;
-}
-
-.card-links a:focus-visible {
-  outline: 3px solid var(--chiefs-gold);
-  outline-offset: 2px;
 }
 
 /* ------------------------------------------------------------- number pad */
