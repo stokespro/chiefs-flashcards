@@ -7,7 +7,23 @@
      numbers, dates, and addresses in card text (which renders them blue). -->
 <meta name="format-detection" content="telephone=no,date=no,address=no,email=no">
 <title>Kansas City Chiefs Flashcards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./styles.css">
+<script>
+/* Theme, applied before first paint so a dark-mode reload never flashes
+   white. No stored preference means the OS decides, via the
+   prefers-color-scheme block in styles.css. */
+(function () {
+  try {
+    var saved = localStorage.getItem("cf-theme");
+    if (saved === "dark" || saved === "light") {
+      document.documentElement.dataset.theme = saved;
+    }
+  } catch (e) { /* private mode: fall through to the OS preference */ }
+})();
+</script>
 </head>
 <body>
 <header class="app-header">
@@ -24,6 +40,7 @@
       autocomplete="off"
     >
     <button type="button" id="padButton" class="pad-button" aria-label="Open jersey number pad">#</button>
+    <button type="button" id="themeButton" class="theme-button" aria-label="Switch to dark theme">&#9789;</button>
   </div>
   <div class="chip-row" id="groupChips" role="group" aria-label="Filter by position group">
     <button type="button" class="chip" data-group="All" aria-pressed="true">All</button>
@@ -35,6 +52,34 @@
 </header>
 
 <main id="view" aria-live="polite"></main>
+
+<script>
+/* Theme toggle. Kept out of app.js so the app's own logic is untouched. */
+(function () {
+  var btn = document.getElementById("themeButton");
+  if (!btn) { return; }
+  var root = document.documentElement;
+  var os = window.matchMedia("(prefers-color-scheme: dark)");
+
+  function isDark() {
+    return root.dataset.theme ? root.dataset.theme === "dark" : os.matches;
+  }
+  function sync() {
+    var dark = isDark();
+    btn.textContent = dark ? "\u263C" : "\u263D";
+    btn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+  }
+  btn.addEventListener("click", function () {
+    var next = isDark() ? "light" : "dark";
+    root.dataset.theme = next;
+    try { localStorage.setItem("cf-theme", next); } catch (e) { /* ignore */ }
+    sync();
+  });
+  /* follow the OS while the user hasn't picked a side */
+  os.addEventListener("change", function () { if (!root.dataset.theme) { sync(); } });
+  sync();
+})();
+</script>
 
 <script src="./roster.js"></script>
 <script src="./app.js"></script>
