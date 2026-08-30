@@ -586,18 +586,25 @@ button {
 .flip-card {
   position: relative;
   width: 100%;
-  /* Both faces are stacked in a single grid cell instead of being absolutely
-     positioned. The card then sizes itself to the taller face, so every
-     value fits with no interior scrolling and no fixed height to outgrow. */
-  display: grid;
+  display: block;
   border-radius: var(--radius-card);
   transition: transform 0.5s;
   transform-style: preserve-3d;
-  display: block;
   border: none;
   background: transparent;
   padding: 0;
   text-align: left;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Both faces share one grid cell, so the card sizes itself to the taller of
+   the two -- no fixed height, no interior scrolling. This lives on a plain
+   div rather than on .flip-card itself: WebKit does not reliably treat a
+   <button> as a grid container and would stack the faces vertically. */
+.flip-stack {
+  display: grid;
+  transform-style: preserve-3d;
 }
 
 .flip-card.is-flipped {
