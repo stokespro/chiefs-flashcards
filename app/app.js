@@ -273,7 +273,7 @@
     var back = document.createElement("a");
     back.className = "back-link";
     back.href = "#/grid";
-    back.textContent = "← Back to grid";
+    back.textContent = "← Back to roster";
     wrap.appendChild(back);
 
     if (!player) {
@@ -332,15 +332,43 @@
     card.setAttribute("aria-label", "Flip card for " + (player.full_name || "player") + " to see profile notes");
 
     card.appendChild(buildCardFront(player));
-    card.appendChild(buildCardBack(player));
+    var cardBack = buildCardBack(player);
+    card.appendChild(cardBack);
+
+    // EDIT (SPRO-134 fixup): the back face's links are real DOM children of
+    // the card even while the front face is showing -- backface-visibility
+    // and (under prefers-reduced-motion) opacity/visibility hide them
+    // visually but do not remove them from the tab order. Keep them out of
+    // the tab order and hidden from AT until the card is actually flipped.
+    var backLinks = cardBack.querySelectorAll(".card-links a");
+
+    function setBackLinksFocusable(focusable) {
+      for (var i = 0; i < backLinks.length; i++) {
+        if (focusable) {
+          backLinks[i].setAttribute("tabindex", "0");
+          backLinks[i].removeAttribute("aria-hidden");
+        } else {
+          backLinks[i].setAttribute("tabindex", "-1");
+          backLinks[i].setAttribute("aria-hidden", "true");
+        }
+      }
+    }
+    setBackLinksFocusable(false);
 
     function toggleFlip() {
       var flipped = card.classList.toggle("is-flipped");
       card.setAttribute("aria-pressed", flipped ? "true" : "false");
+      setBackLinksFocusable(flipped);
     }
 
     card.addEventListener("click", toggleFlip);
     card.addEventListener("keydown", function (evt) {
+      // EDIT (SPRO-134 fixup): only the card itself should trigger flip/nav
+      // on Enter/Space/arrows. Without this guard, keydown events bubbling
+      // up from a focused back-face link (e.g. Enter to activate it) hit
+      // this handler too, which preventDefault()s the link's activation and
+      // flips the card out from under the user's focus.
+      if (evt.target !== card) { return; }
       if (evt.key === "Enter" || evt.key === " " || evt.key === "Spacebar") {
         evt.preventDefault();
         toggleFlip();
@@ -404,12 +432,15 @@
     var front = document.createElement("div");
     front.className = "flip-card__face flip-card__face--front";
 
-    front.appendChild(createHeadshotEl(player));
+    var scroll = document.createElement("div");
+    scroll.className = "flip-card__scroll";
+
+    scroll.appendChild(createHeadshotEl(player));
 
     var name = document.createElement("h2");
     name.className = "player-name";
     name.textContent = player.full_name || "Unknown Player";
-    front.appendChild(name);
+    scroll.appendChild(name);
 
     var meta = document.createElement("div");
     meta.className = "card-tile__meta";
@@ -421,19 +452,7 @@
     badge.textContent = player.position_abbrev || "--";
     meta.appendChild(jerseyNum);
     meta.appendChild(badge);
-    front.appendChild(meta);
-
-    var hint = document.createElement("p");
-    hint.className = "flip-hint";
-    hint.textContent = "Tap or press Enter/Space to see profile notes.";
-    front.appendChild(hint);
-
-    return front;
-  }
-
-  function buildCardBack(player) {
-    var back = document.createElement("div");
-    back.className = "flip-card__face flip-card__face--back";
+    scroll.appendChild(meta);
 
     var list = document.createElement("ul");
     list.className = "detail-list";
@@ -443,27 +462,90 @@
     appendDetail(list, "College", player.college);
     appendDetail(list, "Height / Weight", formatHeightWeight(player));
     appendDetail(list, "Age", player.age);
-    appendDetail(list, "Jersey", player.jersey ? "#" + player.jersey : null);
     appendDetail(list, "Draft", formatDraft(player));
 
-    back.appendChild(list);
+    scroll.appendChild(list);
+
+    front.appendChild(scroll);
+
+    return front;
+  }
+
+  function buildCardBack(player) {
+    var back = document.createElement("div");
+    back.className = "flip-card__face flip-card__face--back";
+
+    var scroll = document.createElement("div");
+    scroll.className = "flip-card__scroll";
 
     var notesHeading = document.createElement("p");
     notesHeading.className = "notes-heading";
     notesHeading.textContent = "Auto-generated profile notes.";
-    back.appendChild(notesHeading);
+    scroll.appendChild(notesHeading);
 
     var strengths = document.createElement("p");
     strengths.className = "notes-block";
     strengths.innerHTML = "<strong>Strengths:</strong> " + escapeHtml(player.strengths || "Not available.");
-    back.appendChild(strengths);
+    scroll.appendChild(strengths);
 
     var weaknesses = document.createElement("p");
     weaknesses.className = "notes-block";
     weaknesses.innerHTML = "<strong>Areas to watch:</strong> " + escapeHtml(player.weaknesses || "Not available.");
-    back.appendChild(weaknesses);
+    scroll.appendChild(weaknesses);
+
+    var links = buildCardLinks(player);
+    if (links) { scroll.appendChild(links); }
+
+    back.appendChild(scroll);
 
     return back;
+  }
+
+  // EDIT 5 (SPRO-134): back-face links -- Chiefs.com profile (slug derived
+  // from full_name; roster.json has no slug field) and an X/Twitter search
+  // link (roster.json has no social handles, so this is a labeled search,
+  // not a fabricated profile URL). Built with DOM APIs (createElement +
+  // .href/.textContent), never innerHTML, since these values ultimately
+  // derive from player data.
+  function playerSlug(player) {
+    var name = ((player && player.full_name) || "").trim();
+    if (!name) { return ""; }
+    var normalized = name.normalize ? name.normalize("NFD") : name;
+    normalized = normalized.replace(/[\u0300-\u036f]/g, ""); // strip diacritics
+    var slug = normalized
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    return slug;
+  }
+
+  function buildCardLinks(player) {
+    var fullName = (player.full_name || "").trim();
+    if (!fullName) { return null; }
+
+    var container = document.createElement("div");
+    container.className = "card-links";
+
+    var slug = playerSlug(player);
+    if (slug) {
+      var profileLink = document.createElement("a");
+      profileLink.href = "https://www.chiefs.com/team/players-roster/" + slug + "/";
+      profileLink.textContent = "Chiefs.com profile";
+      profileLink.target = "_blank";
+      profileLink.rel = "noopener noreferrer";
+      profileLink.addEventListener("click", function (evt) { evt.stopPropagation(); });
+      container.appendChild(profileLink);
+    }
+
+    var socialsLink = document.createElement("a");
+    socialsLink.href = "https://x.com/search?q=" + encodeURIComponent(fullName + " Chiefs");
+    socialsLink.textContent = "Search socials";
+    socialsLink.target = "_blank";
+    socialsLink.rel = "noopener noreferrer";
+    socialsLink.addEventListener("click", function (evt) { evt.stopPropagation(); });
+    container.appendChild(socialsLink);
+
+    return container;
   }
 
   function appendDetail(list, label, value) {
@@ -514,7 +596,7 @@
     var back = document.createElement("a");
     back.className = "back-link";
     back.href = "#/grid";
-    back.textContent = "← Back to grid";
+    back.textContent = "← Back to roster";
     wrap.appendChild(back);
 
     var heading = document.createElement("h2");
