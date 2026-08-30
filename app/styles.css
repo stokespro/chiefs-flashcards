@@ -187,7 +187,7 @@ button {
   aspect-ratio: 1 / 1;
   border-radius: 8px;
   overflow: hidden;
-  background: #5a5a5a;
+  background: var(--paper);
   margin-bottom: 0.4rem;
 }
 
@@ -219,8 +219,8 @@ button {
   justify-content: center;
   font-size: 1.6rem;
   font-weight: 700;
-  color: #fff;
-  background: #5a5a5a;
+  color: var(--ink);
+  background: var(--paper);
   z-index: 2;
 }
 
@@ -319,16 +319,20 @@ button {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   border: 3px solid var(--chiefs-gold);
   border-radius: var(--radius);
   background: var(--paper);
   padding: 0.9rem;
   overflow-y: auto;
+  visibility: visible;
+  transition: visibility 0s linear 0.5s;
 }
 
 .flip-card__face--front {
   display: flex;
   flex-direction: column;
+  transition-delay: 0s;
 }
 
 .flip-card__face--front .card-tile__meta {
@@ -339,6 +343,17 @@ button {
 
 .flip-card__face--back {
   transform: rotateY(180deg);
+  visibility: hidden;
+}
+
+.flip-card.is-flipped .flip-card__face--front {
+  visibility: hidden;
+  transition-delay: 0.5s;
+}
+
+.flip-card.is-flipped .flip-card__face--back {
+  visibility: visible;
+  transition-delay: 0s;
 }
 
 /* Reduced motion: cross-fade instead of a 3D flip. */
@@ -351,6 +366,8 @@ button {
     transition: opacity 0.15s linear;
     backface-visibility: visible;
     transform: none;
+    visibility: visible !important;
+    transition-delay: 0s !important;
   }
   .flip-card__face--front {
     opacity: 1;
