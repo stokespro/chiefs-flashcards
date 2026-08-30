@@ -111,8 +111,17 @@
     renderCurrentView();
   }
 
+  /* Position-group filters only make sense while browsing the roster, so
+     they are hidden (and taken out of the tab order / AT tree) on the
+     player and number-pad views. */
+  function syncChrome(routeName) {
+    var chipRow = document.getElementById("groupChips");
+    if (chipRow) { chipRow.hidden = routeName !== "grid"; }
+  }
+
   function renderCurrentView() {
     var r = getRoute();
+    syncChrome(r.name);
     if (r.name === "player") {
       renderPlayerView(r.id);
     } else if (r.name === "pad") {

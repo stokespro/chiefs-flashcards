@@ -242,6 +242,12 @@ button {
   outline-offset: 2px;
 }
 
+/* JS sets [hidden] on non-roster views; without this the display:flex below
+   would override the attribute's own display:none. */
+.chip-row[hidden] {
+  display: none;
+}
+
 .chip-row {
   display: flex;
   flex-wrap: wrap;
@@ -468,7 +474,9 @@ button {
 /* Jersey number, top-right of the photo. */
 .jersey-num {
   position: absolute;
-  top: 0.1rem;
+  /* top and right intentionally equal -- the number sits in the corner with
+     matching optical margin on both sides. */
+  top: 0.45rem;
   right: 0.45rem;
   z-index: 3;
   font-family: var(--font-display);
@@ -578,10 +586,10 @@ button {
 .flip-card {
   position: relative;
   width: 100%;
-  /* Sized like a card rather than a fixed pixel height, so the full-bleed
-     photo, nameplate, stats and draft strip all land inside the frame. */
-  aspect-ratio: 2 / 3;
-  min-height: 560px;
+  /* Both faces are stacked in a single grid cell instead of being absolutely
+     positioned. The card then sizes itself to the taller face, so every
+     value fits with no interior scrolling and no fixed height to outgrow. */
+  display: grid;
   border-radius: var(--radius-card);
   transition: transform 0.5s;
   transform-style: preserve-3d;
@@ -598,8 +606,8 @@ button {
 
 /* Gold foil band on both faces, with the card body drawn inside it. */
 .flip-card__face {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  grid-area: 1 / 1;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   border: none;
@@ -625,17 +633,18 @@ button {
   z-index: 2;
 }
 
-/* SPRO-134 (2026-08-30): scrolling lives on this inner wrapper, not on
-   .flip-card__face itself. An `overflow-y: auto` on the 3D-transformed face
+/* SPRO-134 (2026-08-30): overflow is handled on this inner wrapper, never on
+   .flip-card__face itself. An overflow value on the 3D-transformed face
    forces WebKit to flatten/repaint the layer, which defeats
    backface-visibility: hidden and briefly flashes the hidden face after a
-   flip. Keeping the face a clean transformed layer and scrolling the inner
-   wrapper avoids that. */
+   flip. Keeping the face a clean transformed layer avoids that.
+   `hidden` (not `auto`) because the card now grows to fit its content --
+   this only clips the full-bleed photo to the rounded corners. */
 .flip-card__scroll {
   position: relative;
   z-index: 1;
-  height: 100%;
-  overflow-y: auto;
+  height: auto;
+  overflow: hidden;
   border-radius: calc(var(--radius-card) - 5px);
   border: 1px solid var(--edge);
   background: radial-gradient(120% 80% at 50% 0%,
@@ -734,7 +743,6 @@ button {
 .flip-card__face--front .flip-card__scroll {
   display: flex;
   flex-direction: column;
-  height: 100%;
 }
 
 /* SPRO-134 (2026-08-30): the front face also carries the detail-list (moved
@@ -748,7 +756,7 @@ button {
 }
 
 .flip-card__face--front .jersey-num {
-  top: 0.15rem;
+  top: 0.7rem;
   right: 0.7rem;
   font-size: 3.1rem;
 }
@@ -807,7 +815,6 @@ button {
   }
   .flip-card__face--front {
     opacity: 1;
-    position: relative;
   }
   .flip-card__face--back {
     opacity: 0;
@@ -816,12 +823,10 @@ button {
   .flip-card.is-flipped .flip-card__face--front {
     opacity: 0;
     pointer-events: none;
-    position: absolute;
   }
   .flip-card.is-flipped .flip-card__face--back {
     opacity: 1;
     pointer-events: auto;
-    position: relative;
   }
 }
 
