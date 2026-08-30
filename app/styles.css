@@ -184,28 +184,19 @@ button {
   object-fit: cover;
 }
 
-.app-header__search {
-  flex: 1 1 auto;
-  min-width: 0;
-  padding: 0.5rem 0.6rem;
-  border-radius: var(--radius);
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  font-size: 1rem;
-  font-family: var(--font-body);
-  background: var(--field);
-  color: var(--ink);
-  -webkit-text-fill-color: var(--ink);
+.app-header__actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
-.app-header__search::placeholder {
-  color: var(--muted);
-  -webkit-text-fill-color: var(--muted);
-  opacity: 1;
-}
-
-.app-header__search:focus-visible {
-  outline: 3px solid var(--chiefs-gold);
-  outline-offset: 1px;
+/* Roster icon: a 2x2 card grid, inheriting the button's text colour. */
+#rosterButton svg {
+  width: 1rem;
+  height: 1rem;
+  display: block;
+  fill: currentColor;
 }
 
 .pad-button,
@@ -248,6 +239,36 @@ button {
   display: none;
 }
 
+/* ---- roster filter bar (lives in the body, not the header) ---- */
+
+.roster-filters {
+  margin-bottom: 0.75rem;
+}
+
+.roster-search {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--field);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+}
+
+.roster-search::placeholder {
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+  opacity: 1;
+}
+
+.roster-search:focus-visible {
+  outline: 3px solid var(--chiefs-gold);
+  outline-offset: 1px;
+}
+
 .chip-row {
   display: flex;
   flex-wrap: wrap;
@@ -255,22 +276,22 @@ button {
 }
 
 .chip {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-  -webkit-text-fill-color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: var(--surface);
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+  border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 0.3rem 0.75rem;
+  padding: 0.35rem 0.85rem;
   font-family: var(--font-mono);
   font-size: 0.78rem;
   letter-spacing: 0.06em;
 }
 
 .chip[aria-pressed="true"] {
-  background: var(--chiefs-gold);
-  color: #14161D;
-  -webkit-text-fill-color: #14161D;
-  border-color: var(--chiefs-gold);
+  background: var(--tab-red);
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  border-color: rgba(243, 178, 27, 0.55);
   font-weight: 700;
 }
 
@@ -505,19 +526,6 @@ button {
   margin: 0 auto;
 }
 
-.back-link {
-  display: inline-block;
-  margin-bottom: 0.6rem;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--muted);
-  -webkit-text-fill-color: var(--muted);
-  text-decoration: none;
-}
-
 .card-nav {
   display: flex;
   align-items: center;
@@ -615,6 +623,11 @@ button {
 .flip-card__face {
   position: relative;
   grid-area: 1 / 1;
+  /* Grid so .flip-card__scroll stretches to the full face height. Both faces
+     share one grid cell, so the shorter one (the back) is stretched to the
+     taller one -- without this the back panel stopped at its own content and
+     left bare foil below it. */
+  display: grid;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   border: none;
@@ -938,8 +951,8 @@ button {
 }
 
 /* SPRO-134 (2026-08-30): back-face external links (Chiefs.com profile,
-   socials search). Sized to match the existing .back-link / .nav-btn
-   touch-target conventions -- comfortably tappable on mobile. */
+   socials search). Sized to match the .nav-btn touch-target convention --
+   comfortably tappable on mobile. */
 .card-links {
   display: flex;
   flex-wrap: wrap;

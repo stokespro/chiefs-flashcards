@@ -68,23 +68,13 @@
 
   // ---------------------------------------------------------------- header
 
+  /* The header now carries navigation only -- the search field and position
+     chips moved into the roster body, where they are built by
+     getRosterFilters(). */
   function wireHeader() {
-    var nameInput = document.getElementById("nameFilter");
-    nameInput.addEventListener("input", function () {
-      state.filterName = nameInput.value || "";
-      if (getRoute().name === "grid") { renderCurrentView(); }
-    });
-
-    var chipRow = document.getElementById("groupChips");
-    chipRow.addEventListener("click", function (evt) {
-      var btn = evt.target.closest(".chip");
-      if (!btn) { return; }
-      state.filterGroup = btn.getAttribute("data-group");
-      var chips = chipRow.querySelectorAll(".chip");
-      for (var i = 0; i < chips.length; i++) {
-        chips[i].setAttribute("aria-pressed", chips[i] === btn ? "true" : "false");
-      }
-      if (getRoute().name === "grid") { renderCurrentView(); }
+    var rosterButton = document.getElementById("rosterButton");
+    rosterButton.addEventListener("click", function () {
+      window.location.hash = "#/grid";
     });
 
     var padButton = document.getElementById("padButton");
@@ -113,17 +103,8 @@
     window.scrollTo(0, 0);
   }
 
-  /* Position-group filters only make sense while browsing the roster, so
-     they are hidden (and taken out of the tab order / AT tree) on the
-     player and number-pad views. */
-  function syncChrome(routeName) {
-    var chipRow = document.getElementById("groupChips");
-    if (chipRow) { chipRow.hidden = routeName !== "grid"; }
-  }
-
   function renderCurrentView() {
     var r = getRoute();
-    syncChrome(r.name);
     if (r.name === "player") {
       renderPlayerView(r.id);
     } else if (r.name === "pad") {
@@ -275,17 +256,95 @@
 
   // ---------------------------------------------------------------- grid
 
+  var GROUPS = ["All", "Offense", "Defense", "Special Teams", "Reserve"];
+
+  /* The filter bar is built once and cached. Typing in the search field
+     re-renders the roster, so if the bar were rebuilt each pass the focused
+     input would be destroyed mid-keystroke and lose both focus and caret.
+     Navigating away detaches this node but does not discard it -- the same
+     element (and its listeners) is re-appended on return, which is also how
+     the current filters survive a round trip to a player card. */
+  var rosterFiltersEl = null;
+
+  function getRosterFilters() {
+    if (rosterFiltersEl) { return rosterFiltersEl; }
+
+    var bar = document.createElement("div");
+    bar.className = "roster-filters";
+
+    var label = document.createElement("label");
+    label.className = "visually-hidden";
+    label.setAttribute("for", "nameFilter");
+    label.textContent = "Filter players by name";
+    bar.appendChild(label);
+
+    var input = document.createElement("input");
+    input.type = "search";
+    input.id = "nameFilter";
+    input.className = "roster-search";
+    input.placeholder = "Find a player by name...";
+    input.autocomplete = "off";
+    input.value = state.filterName || "";
+    input.addEventListener("input", function () {
+      state.filterName = input.value || "";
+      renderGridView();
+    });
+    bar.appendChild(input);
+
+    var chipRow = document.createElement("div");
+    chipRow.className = "chip-row";
+    chipRow.setAttribute("role", "group");
+    chipRow.setAttribute("aria-label", "Filter by position group");
+
+    GROUPS.forEach(function (group) {
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip";
+      chip.setAttribute("data-group", group);
+      chip.setAttribute("aria-pressed", state.filterGroup === group ? "true" : "false");
+      chip.textContent = group;
+      chipRow.appendChild(chip);
+    });
+
+    chipRow.addEventListener("click", function (evt) {
+      var btn = evt.target.closest(".chip");
+      if (!btn) { return; }
+      state.filterGroup = btn.getAttribute("data-group");
+      var chips = chipRow.querySelectorAll(".chip");
+      for (var i = 0; i < chips.length; i++) {
+        chips[i].setAttribute("aria-pressed", chips[i] === btn ? "true" : "false");
+      }
+      renderGridView();
+    });
+
+    bar.appendChild(chipRow);
+
+    rosterFiltersEl = bar;
+    return bar;
+  }
+
   function renderGridView() {
     var players = getFilteredPlayers();
     state.lastFilteredIds = players.map(function (p) { return p.id; });
 
-    viewEl.innerHTML = "";
+    // Rebuild the scaffold only when it is not already mounted; otherwise
+    // swap the results alone and leave the filter bar (and focus) intact.
+    var results = document.getElementById("rosterResults");
+    if (!results || !viewEl.contains(results)) {
+      viewEl.innerHTML = "";
+      viewEl.appendChild(getRosterFilters());
+      results = document.createElement("div");
+      results.id = "rosterResults";
+      viewEl.appendChild(results);
+    }
+
+    results.innerHTML = "";
 
     if (players.length === 0) {
       var empty = document.createElement("div");
       empty.className = "empty-state";
       empty.textContent = "No players match your search.";
-      viewEl.appendChild(empty);
+      results.appendChild(empty);
       return;
     }
 
@@ -296,7 +355,7 @@
       grid.appendChild(buildTile(player));
     });
 
-    viewEl.appendChild(grid);
+    results.appendChild(grid);
   }
 
   function buildTile(player) {
@@ -343,12 +402,6 @@
 
     var wrap = document.createElement("div");
     wrap.className = "player-view";
-
-    var back = document.createElement("a");
-    back.className = "back-link";
-    back.href = "#/grid";
-    back.textContent = "← Back to roster";
-    wrap.appendChild(back);
 
     if (!player) {
       var missing = document.createElement("div");
@@ -730,12 +783,6 @@
 
     var wrap = document.createElement("div");
     wrap.className = "pad-view";
-
-    var back = document.createElement("a");
-    back.className = "back-link";
-    back.href = "#/grid";
-    back.textContent = "← Back to roster";
-    wrap.appendChild(back);
 
     var heading = document.createElement("h2");
     heading.textContent = "Find by jersey number";

@@ -31,23 +31,18 @@
     <h1 class="app-header__title">
       <img class="app-header__logo" src="./assets/card-bg.png" alt="Chiefs Flashcards">
     </h1>
-    <label class="visually-hidden" for="nameFilter">Filter players by name</label>
-    <input
-      type="search"
-      id="nameFilter"
-      class="app-header__search"
-      placeholder="Find a player by name..."
-      autocomplete="off"
-    >
-    <button type="button" id="padButton" class="pad-button" aria-label="Open jersey number pad">#</button>
-    <button type="button" id="themeButton" class="theme-button" aria-label="Switch to dark theme">&#9789;</button>
-  </div>
-  <div class="chip-row" id="groupChips" role="group" aria-label="Filter by position group">
-    <button type="button" class="chip" data-group="All" aria-pressed="true">All</button>
-    <button type="button" class="chip" data-group="Offense" aria-pressed="false">Offense</button>
-    <button type="button" class="chip" data-group="Defense" aria-pressed="false">Defense</button>
-    <button type="button" class="chip" data-group="Special Teams" aria-pressed="false">Special Teams</button>
-    <button type="button" class="chip" data-group="Reserve" aria-pressed="false">Reserve</button>
+    <div class="app-header__actions">
+      <button type="button" id="rosterButton" class="pad-button" aria-label="Back to roster">
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <rect x="1" y="1" width="6" height="6" rx="1.2"></rect>
+          <rect x="9" y="1" width="6" height="6" rx="1.2"></rect>
+          <rect x="1" y="9" width="6" height="6" rx="1.2"></rect>
+          <rect x="9" y="9" width="6" height="6" rx="1.2"></rect>
+        </svg>
+      </button>
+      <button type="button" id="padButton" class="pad-button" aria-label="Open jersey number pad">#</button>
+      <button type="button" id="themeButton" class="theme-button" aria-label="Switch to dark theme">&#9789;</button>
+    </div>
   </div>
 </header>
 
