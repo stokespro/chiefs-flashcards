@@ -627,7 +627,7 @@ button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.55rem 0.8rem 0.5rem;
+  padding: 0.55rem 0.85rem 0.5rem;
   border-bottom: 1px solid var(--border);
 }
 
@@ -688,8 +688,13 @@ button {
 .rail-btn--x {
   padding: 0;
   width: 1.9rem;
-  font-size: 0.8rem;
-  letter-spacing: 0;
+}
+
+.rail-btn--x svg {
+  width: 0.72rem;
+  height: 0.72rem;
+  display: block;
+  fill: currentColor;
 }
 
 .rail-btn:focus-visible {
@@ -729,44 +734,36 @@ button {
   -webkit-text-fill-color: var(--gold-ink);
 }
 
-.player-card__face--front {
-  transform: rotateY(0deg);
-  transition-delay: 0s;
-}
-
-.player-card__face--front .player-card__body {
+.player-card__face .player-card__body {
   display: flex;
   flex-direction: column;
 }
 
-/* SPRO-134 (2026-08-30): the front face also carries the detail-list (moved
-   off the back). The headshot used to be capped at 42% width to leave room
-   for it; it is now full-bleed instead, and the card is sized by
-   aspect-ratio to fit both. .player-card__body keeps overflow-y: auto from
-   the shared rule above as a safety net for long names/colleges. */
-.player-card__face--front .headshot-wrap {
+/* The photo is full-bleed; every other section carries its own horizontal
+   inset so the card has one consistent margin down both edges. */
+.player-card__face .headshot-wrap {
   aspect-ratio: 1 / 0.84;
   flex-shrink: 0;
 }
 
-.player-card__face--front .jersey-num {
+.player-card__face .jersey-num {
   top: 0.7rem;
   right: 0.7rem;
   font-size: 3.1rem;
 }
 
-.player-card__face--front .badge {
+.player-card__face .badge {
   font-size: 0.66rem;
   padding: 0.35rem 1.5rem 0.35rem 0.85rem;
   clip-path: polygon(0 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
 }
 
-.player-card__face--front .card-plate {
+.player-card__face .card-plate {
   padding: 0.75rem 0.85rem 0.7rem;
   flex-shrink: 0;
 }
 
-.player-card__face--front .detail-list {
+.player-card__face .detail-list {
   padding: 0 0.85rem;
   margin-bottom: 0.5rem;
   flex-shrink: 0;
