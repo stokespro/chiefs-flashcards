@@ -276,11 +276,26 @@ button {
 }
 
 /* Position sub-row. Smaller and quieter than the group chips so the
-   hierarchy reads at a glance: group first, position second. */
+   hierarchy reads at a glance: group first, position second.
+   Stays on one line and scrolls sideways rather than wrapping.
+   The vertical padding is not decorative: `overflow-x: auto` forces
+   overflow-y to compute to auto as well, which would otherwise clip the
+   focus ring (3px outline + 2px offset) off the top and bottom of a chip. */
 .chip-row--sub {
-  margin-top: 0.4rem;
+  margin-top: 0.25rem;
   gap: 0.3rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 5px 0;
+  scrollbar-width: none;
+  /* Fades the trailing edge so it reads as scrollable with the bar hidden. */
+  mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 20px), transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 20px), transparent 100%);
 }
+
+.chip-row--sub::-webkit-scrollbar { display: none; }
 
 .chip-row--sub[hidden] { display: none; }
 
@@ -288,6 +303,7 @@ button {
   display: inline-flex;
   align-items: baseline;
   gap: 0.35rem;
+  flex: 0 0 auto;
   padding: 0.28rem 0.6rem;
   font-size: 0.7rem;
   letter-spacing: 0.1em;
