@@ -116,11 +116,9 @@
 
   // ------------------------------------------------------------ data util
 
-  var RESERVE_GROUPS = ["injuredReserveOrOut", "suspended", "practiceSquad"];
 
   function matchesGroup(player, group) {
     if (group === "All") { return true; }
-    if (group === "Reserve") { return RESERVE_GROUPS.indexOf(player.roster_group) !== -1; }
     return player.position_group === group;
   }
 
@@ -289,7 +287,7 @@
 
   // ---------------------------------------------------------------- grid
 
-  var GROUPS = ["All", "Offense", "Defense", "Special Teams", "Reserve"];
+  var GROUPS = ["All", "Offense", "Defense", "Special Teams"];
 
   /* The filter bar is built once and cached. Typing in the search field
      re-renders the roster, so if the bar were rebuilt each pass the focused
