@@ -3,11 +3,25 @@
 window.__ROSTER__ = {
   "schema_version": 1,
   "blurb_rules_version": 1,
-  "generated_at": "2026-08-31T01:16:56Z",
+  "generated_at": "2026-09-08T17:02:34Z",
   "source": {
     "roster_endpoint": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/kc/roster",
     "profile_endpoint_template": "https://site.web.api.espn.com/apis/common/v3/sports/football/nfl/athletes/{id}",
     "espn_timestamp": "2026-08-31T01:15:42Z",
+    "espn_profile_supplement": {
+      "retrieved_at": "2026-09-08T17:02:30Z",
+      "athlete_ids": [
+        "4431561",
+        "4837252"
+      ]
+    },
+    "chiefs_com_roster_url": "https://www.chiefs.com/team/players-roster/",
+    "chiefs_com_retrieved_at": "2026-09-08T17:02:28Z",
+    "chiefs_com_section": "Active",
+    "chiefs_com_active_count": 53,
+    "chiefs_com_player_pages_verified": [
+      "https://www.chiefs.com/team/players-roster/garrett-nussmeier/"
+    ],
     "season": 2026,
     "team": "KC"
   },
@@ -19,8 +33,8 @@ window.__ROSTER__ = {
       "specialTeam": 3
     },
     "by_position": {
-      "CB": 7,
-      "DE": 4,
+      "CB": 6,
+      "DE": 5,
       "DT": 4,
       "LB": 5,
       "S": 4,
@@ -41,19 +55,15 @@ window.__ROSTER__ = {
     "missing_college": 0,
     "missing_age": 0,
     "missing_jersey": 0,
-    "duplicate_jersey_numbers": {
-      "14": [
-        "4567747",
-        "4361496"
-      ]
-    }
+    "duplicate_jersey_numbers": {}
   },
   "validation": {
     "expected_total": 53,
     "is_final_53": true,
-    "headshots_verified": null,
+    "headshots_verified": true,
     "warnings": [
-      "Active 53 selected from the ESPN roster feed per the official Kansas City Chiefs cutdown announcement of Aug 30, 2026; the feed still carried non-active players (PUP/IR/waived) at build time."
+      "Roster reconciled against the explicitly labeled Active section of https://www.chiefs.com/team/players-roster/ retrieved 2026-09-08T17:02:28Z (53 rows); membership, jersey numbers, listed height/weight and age follow that live capture. The Reserve/Injured, Reserve/Physically Unable to Perform and Practice Squad sections on that page were excluded.",
+      "SPRO-144 point-in-time, data-only refresh: re-running pipeline/build_roster.py against the ESPN feed will overwrite these Chiefs.com-sourced corrections (at capture time ESPN still listed Garrett Nussmeier at #14, while Chiefs.com lists #19)."
     ]
   },
   "players": [
@@ -97,7 +107,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Covering receivers at cornerback, he relies on footwork and instincts to stay in phase down the field. A first-round pick out of LSU, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "As a rookie, the speed of the professional game will take some time to slow down for him, and consistency is the next step.",
@@ -122,7 +133,7 @@ window.__ROSTER__ = {
       "roster_group": "defense",
       "status": "Active",
       "status_type": "active",
-      "age": 27,
+      "age": 28,
       "date_of_birth": "1998-09-03",
       "display_dob": "3/9/1998",
       "birth_place": "New Orleans, LA",
@@ -148,7 +159,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Covering receivers at cornerback, he relies on footwork and instincts to stay in phase down the field. A second-round pick out of LSU, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -199,7 +211,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Covering receivers at cornerback, he relies on footwork and instincts to stay in phase down the field. A mid-round pick out of California, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Still early in his career, he is continuing to build the consistency that comes with more experience.",
@@ -250,7 +263,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Covering receivers at cornerback, he relies on footwork and instincts to stay in phase down the field. A mid-round pick out of Oregon, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "As a rookie, the speed of the professional game will take some time to slow down for him, and consistency is the next step.",
@@ -301,64 +315,14 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Covering receivers at cornerback, he relies on footwork and instincts to stay in phase down the field. He signed as an undrafted free agent out of USC, a path that rewards steady, hard-nosed improvement.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
       "blurb_meta": {
         "archetype_key": "CB",
         "experience_tier": "prime",
-        "size_band": "balanced",
-        "rules_version": 1
-      }
-    },
-    {
-      "id": "4602648",
-      "full_name": "Kevin Knowles",
-      "first_name": "Kevin",
-      "last_name": "Knowles",
-      "short_name": "K. Knowles",
-      "jersey": "35",
-      "jersey_number": 35,
-      "position_abbrev": "CB",
-      "position_name": "Cornerback",
-      "position_group": "Defense",
-      "roster_group": "defense",
-      "status": "Active",
-      "status_type": "active",
-      "age": 23,
-      "date_of_birth": "2003-04-09",
-      "display_dob": "9/4/2003",
-      "birth_place": "Hollywood, FL",
-      "height_inches": 71,
-      "display_height": "5' 11\"",
-      "weight_pounds": 190,
-      "display_weight": "190 lbs",
-      "college": "Florida State",
-      "college_short": "Florida St",
-      "college_abbrev": "FSU",
-      "experience_years": 2,
-      "display_experience": "2nd Season",
-      "draft": {
-        "year": null,
-        "round": null,
-        "pick": null,
-        "team": null,
-        "is_undrafted": true,
-        "display": null
-      },
-      "headshot_url": "https://a.espncdn.com/i/headshots/nfl/players/full/4602648.png",
-      "headshot_alt": "Kevin Knowles",
-      "profile_fetched": true,
-      "data_sources": [
-        "roster",
-        "profile"
-      ],
-      "strengths": "Covering receivers at cornerback, he relies on footwork and instincts to stay in phase down the field. He signed as an undrafted free agent out of Florida State, a path that rewards steady, hard-nosed improvement.",
-      "weaknesses": "Still early in his career, he is continuing to build the consistency that comes with more experience.",
-      "blurb_meta": {
-        "archetype_key": "CB",
-        "experience_tier": "developing",
         "size_band": "balanced",
         "rules_version": 1
       }
@@ -403,7 +367,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Covering receivers at cornerback, he relies on footwork and instincts to stay in phase down the field. A mid-round pick out of Louisiana Tech, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -454,7 +419,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Rushing off the edge at defensive end, he looks to pressure the quarterback and set the edge against the run, and his frame is best described as compact. A second-round pick out of Oklahoma, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "As a rookie, the speed of the professional game will take some time to slow down for him, and consistency is the next step. Refining technique will help him maximize a smaller frame against bigger competition.",
@@ -462,6 +428,58 @@ window.__ROSTER__ = {
         "archetype_key": "DE",
         "experience_tier": "rookie",
         "size_band": "compact",
+        "rules_version": 1
+      }
+    },
+    {
+      "id": "4837252",
+      "full_name": "Jack Pyburn",
+      "first_name": "Jack",
+      "last_name": "Pyburn",
+      "short_name": "J. Pyburn",
+      "jersey": "54",
+      "jersey_number": 54,
+      "position_abbrev": "DE",
+      "position_name": "Defensive End",
+      "position_group": "Defense",
+      "roster_group": "defense",
+      "status": "Active",
+      "status_type": "active",
+      "age": 23,
+      "date_of_birth": "2003-09-03",
+      "display_dob": "3/9/2003",
+      "birth_place": "Jacksonville, FL",
+      "height_inches": 76,
+      "display_height": "6' 4\"",
+      "weight_pounds": 258,
+      "display_weight": "258 lbs",
+      "college": "LSU",
+      "college_short": "LSU",
+      "college_abbrev": "LSU",
+      "experience_years": 0,
+      "display_experience": "Rookie",
+      "draft": {
+        "year": null,
+        "round": null,
+        "pick": null,
+        "team": null,
+        "is_undrafted": true,
+        "display": null
+      },
+      "headshot_url": "https://a.espncdn.com/i/headshots/nfl/players/full/4837252.png",
+      "headshot_alt": "Jack Pyburn",
+      "profile_fetched": true,
+      "data_sources": [
+        "roster",
+        "profile",
+        "chiefs_com"
+      ],
+      "strengths": "Rushing off the edge at defensive end, he looks to pressure the quarterback and set the edge against the run. He signed as an undrafted free agent out of LSU, a path that rewards steady, hard-nosed improvement.",
+      "weaknesses": "As a rookie, the speed of the professional game will take some time to slow down for him, and consistency is the next step.",
+      "blurb_meta": {
+        "archetype_key": "DE",
+        "experience_tier": "rookie",
+        "size_band": "balanced",
         "rules_version": 1
       }
     },
@@ -505,7 +523,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Rushing off the edge at defensive end, he looks to pressure the quarterback and set the edge against the run. A first-round pick out of Purdue, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -556,7 +575,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Rushing off the edge at defensive end, he looks to pressure the quarterback and set the edge against the run. A first-round pick out of Kansas State, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -607,63 +627,13 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Rushing off the edge at defensive end, he looks to pressure the quarterback and set the edge against the run. A mid-round pick out of Louisville, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Still early in his career, he is continuing to build the consistency that comes with more experience.",
       "blurb_meta": {
         "archetype_key": "DE",
-        "experience_tier": "developing",
-        "size_band": "balanced",
-        "rules_version": 1
-      }
-    },
-    {
-      "id": "4573152",
-      "full_name": "Marcus Harris",
-      "first_name": "Marcus",
-      "last_name": "Harris",
-      "short_name": "M. Harris",
-      "jersey": "68",
-      "jersey_number": 68,
-      "position_abbrev": "DT",
-      "position_name": "Defensive Tackle",
-      "position_group": "Defense",
-      "roster_group": "defense",
-      "status": "Active",
-      "status_type": "active",
-      "age": 25,
-      "date_of_birth": "2000-09-27",
-      "display_dob": "27/9/2000",
-      "birth_place": "Montgomery, AL",
-      "height_inches": 75,
-      "display_height": "6' 3\"",
-      "weight_pounds": 295,
-      "display_weight": "295 lbs",
-      "college": "Auburn",
-      "college_short": "Auburn",
-      "college_abbrev": "AUB",
-      "experience_years": 1,
-      "display_experience": "1st Season",
-      "draft": {
-        "year": 2024,
-        "round": 7,
-        "pick": 247,
-        "team": "HOU",
-        "is_undrafted": false,
-        "display": "2024: Rd 7, Pk 247 (HOU)"
-      },
-      "headshot_url": "https://a.espncdn.com/i/headshots/nfl/players/full/4573152.png",
-      "headshot_alt": "Marcus Harris",
-      "profile_fetched": true,
-      "data_sources": [
-        "roster",
-        "profile"
-      ],
-      "strengths": "Lining up at defensive tackle, he takes on double teams and clogs running lanes up the middle. A late-round pick out of Auburn, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
-      "weaknesses": "Still early in his career, he is continuing to build the consistency that comes with more experience.",
-      "blurb_meta": {
-        "archetype_key": "DT",
         "experience_tier": "developing",
         "size_band": "balanced",
         "rules_version": 1
@@ -709,7 +679,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Lining up at defensive tackle, he takes on double teams and clogs running lanes up the middle, and his frame is best described as sturdy. A late-round pick out of BYU, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments. Sharpening quickness and change of direction will help him maximize his sturdy build.",
@@ -717,6 +688,58 @@ window.__ROSTER__ = {
         "archetype_key": "DT",
         "experience_tier": "prime",
         "size_band": "sturdy",
+        "rules_version": 1
+      }
+    },
+    {
+      "id": "4431561",
+      "full_name": "Bryson Eason",
+      "first_name": "Bryson",
+      "last_name": "Eason",
+      "short_name": "B. Eason",
+      "jersey": "94",
+      "jersey_number": 94,
+      "position_abbrev": "DT",
+      "position_name": "Defensive Tackle",
+      "position_group": "Defense",
+      "roster_group": "defense",
+      "status": "Active",
+      "status_type": "active",
+      "age": 24,
+      "date_of_birth": "2002-01-21",
+      "display_dob": "21/1/2002",
+      "birth_place": "Memphis, TN",
+      "height_inches": 74,
+      "display_height": "6' 2\"",
+      "weight_pounds": 323,
+      "display_weight": "323 lbs",
+      "college": "Tennessee",
+      "college_short": "Tennessee",
+      "college_abbrev": "TENN",
+      "experience_years": 0,
+      "display_experience": "Rookie",
+      "draft": {
+        "year": null,
+        "round": null,
+        "pick": null,
+        "team": null,
+        "is_undrafted": true,
+        "display": null
+      },
+      "headshot_url": "https://a.espncdn.com/i/headshots/nfl/players/full/4431561.png",
+      "headshot_alt": "Bryson Eason",
+      "profile_fetched": true,
+      "data_sources": [
+        "roster",
+        "profile",
+        "chiefs_com"
+      ],
+      "strengths": "Lining up at defensive tackle, he takes on double teams and clogs running lanes up the middle. He signed as an undrafted free agent out of Tennessee, a path that rewards steady, hard-nosed improvement.",
+      "weaknesses": "As a rookie, the speed of the professional game will take some time to slow down for him, and consistency is the next step.",
+      "blurb_meta": {
+        "archetype_key": "DT",
+        "experience_tier": "rookie",
+        "size_band": "balanced",
         "rules_version": 1
       }
     },
@@ -760,7 +783,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Lining up at defensive tackle, he takes on double teams and clogs running lanes up the middle, and his frame is best described as tall for the position. A second-round pick out of Mississippi State, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Like any veteran, staying fresh and continuing to adapt his game will matter as much as experience does. Polishing the finer technical details that come with a bigger frame remains a growth area.",
@@ -811,7 +835,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Lining up at defensive tackle, he takes on double teams and clogs running lanes up the middle. A first-round pick out of Clemson, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "As a rookie, the speed of the professional game will take some time to slow down for him, and consistency is the next step.",
@@ -862,7 +887,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Patrolling from linebacker, he reads plays quickly and helps the defense stay organized from sideline to sideline. A mid-round pick out of Notre Dame, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Like any veteran, staying fresh and continuing to adapt his game will matter as much as experience does.",
@@ -913,7 +939,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Patrolling from linebacker, he reads plays quickly and helps the defense stay organized from sideline to sideline. A late-round pick out of Oregon, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Still early in his career, he is continuing to build the consistency that comes with more experience.",
@@ -964,7 +991,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Patrolling from linebacker, he reads plays quickly and helps the defense stay organized from sideline to sideline, and his frame is best described as compact. A second-round pick out of Missouri, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments. Refining technique will help him maximize a smaller frame against bigger competition.",
@@ -1015,7 +1043,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Patrolling from linebacker, he reads plays quickly and helps the defense stay organized from sideline to sideline. He signed as an undrafted free agent out of South Dakota, a path that rewards steady, hard-nosed improvement.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -1066,7 +1095,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Patrolling from linebacker, he reads plays quickly and helps the defense stay organized from sideline to sideline. He signed as an undrafted free agent out of TCU, a path that rewards steady, hard-nosed improvement.",
       "weaknesses": "Still early in his career, he is continuing to build the consistency that comes with more experience.",
@@ -1117,7 +1147,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Playing safety, he serves as the last line of defense, reading the quarterback and helping direct the secondary, and his frame is best described as compact. A late-round pick out of Notre Dame, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments. Refining technique will help him maximize a smaller frame against bigger competition.",
@@ -1168,7 +1199,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Playing safety, he serves as the last line of defense, reading the quarterback and helping direct the secondary. A mid-round pick out of Washington State, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -1219,7 +1251,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Playing safety, he serves as the last line of defense, reading the quarterback and helping direct the secondary. A mid-round pick out of Virginia Tech, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -1270,7 +1303,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Playing safety, he serves as the last line of defense, reading the quarterback and helping direct the secondary, and his frame is best described as tall for the position. He signed as an undrafted free agent out of Iowa, a path that rewards steady, hard-nosed improvement.",
       "weaknesses": "As a rookie, the speed of the professional game will take some time to slow down for him, and consistency is the next step. Polishing the finer technical details that come with a bigger frame remains a growth area.",
@@ -1321,7 +1355,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "At center, he sets the protection calls and gets the offensive line moving as one unit. A second-round pick out of Oklahoma, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -1372,7 +1407,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "At center, he sets the protection calls and gets the offensive line moving as one unit. A late-round pick out of Penn State, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -1423,7 +1459,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Working inside at guard, he provides the interior push and protection the offense leans on up front. A late-round pick out of Tennessee, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -1474,7 +1511,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Working inside at guard, he provides the interior push and protection the offense leans on up front. He signed as an undrafted free agent out of Western Michigan, a path that rewards steady, hard-nosed improvement.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -1491,8 +1529,8 @@ window.__ROSTER__ = {
       "first_name": "Joshua",
       "last_name": "Ezeudu",
       "short_name": "J. Ezeudu",
-      "jersey": "75",
-      "jersey_number": 75,
+      "jersey": "73",
+      "jersey_number": 73,
       "position_abbrev": "G",
       "position_name": "Guard",
       "position_group": "Offense",
@@ -1505,8 +1543,8 @@ window.__ROSTER__ = {
       "birth_place": "Lawrenceville, GA",
       "height_inches": 76,
       "display_height": "6' 4\"",
-      "weight_pounds": 308,
-      "display_weight": "308 lbs",
+      "weight_pounds": 310,
+      "display_weight": "310 lbs",
       "college": "North Carolina",
       "college_short": "North Carolina",
       "college_abbrev": "UNC",
@@ -1525,7 +1563,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Working inside at guard, he provides the interior push and protection the offense leans on up front. A mid-round pick out of North Carolina, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -1556,8 +1595,8 @@ window.__ROSTER__ = {
       "birth_place": "Raleigh, NC",
       "height_inches": 78,
       "display_height": "6' 6\"",
-      "weight_pounds": 330,
-      "display_weight": "330 lbs",
+      "weight_pounds": 335,
+      "display_weight": "335 lbs",
       "college": "Ole Miss",
       "college_short": "Ole Miss",
       "college_abbrev": "MISS",
@@ -1576,7 +1615,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Anchoring the edge of the offensive line at tackle, he is charged with protecting the pocket and setting the tone in the run game, and his frame is best described as sturdy. He signed as an undrafted free agent out of Ole Miss, a path that rewards steady, hard-nosed improvement.",
       "weaknesses": "As a rookie, the speed of the professional game will take some time to slow down for him, and consistency is the next step. Sharpening quickness and change of direction will help him maximize his sturdy build.",
@@ -1627,7 +1667,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Anchoring the edge of the offensive line at tackle, he is charged with protecting the pocket and setting the tone in the run game. He signed as an undrafted free agent out of Indiana, a path that rewards steady, hard-nosed improvement.",
       "weaknesses": "As a rookie, the speed of the professional game will take some time to slow down for him, and consistency is the next step.",
@@ -1678,7 +1719,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Anchoring the edge of the offensive line at tackle, he is charged with protecting the pocket and setting the tone in the run game. A first-round pick out of Ohio State, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Still early in his career, he is continuing to build the consistency that comes with more experience.",
@@ -1729,7 +1771,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Anchoring the edge of the offensive line at tackle, he is charged with protecting the pocket and setting the tone in the run game. A second-round pick out of BYU, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -1780,7 +1823,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Anchoring the edge of the offensive line at tackle, he is charged with protecting the pocket and setting the tone in the run game. A late-round pick out of Western Michigan, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -1831,7 +1875,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "As the quarterback, he is the trigger man for the offense, tasked with reading defenses and delivering the ball on time. A first-round pick out of Ohio State, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -1839,57 +1884,6 @@ window.__ROSTER__ = {
         "archetype_key": "QB",
         "experience_tier": "prime",
         "size_band": "balanced",
-        "rules_version": 1
-      }
-    },
-    {
-      "id": "4567747",
-      "full_name": "Garrett Nussmeier",
-      "first_name": "Garrett",
-      "last_name": "Nussmeier",
-      "short_name": "G. Nussmeier",
-      "jersey": "14",
-      "jersey_number": 14,
-      "position_abbrev": "QB",
-      "position_name": "Quarterback",
-      "position_group": "Offense",
-      "roster_group": "offense",
-      "status": "Active",
-      "status_type": "active",
-      "age": 24,
-      "date_of_birth": "2002-02-06",
-      "display_dob": "6/2/2002",
-      "birth_place": "Lake Charles, LA",
-      "height_inches": 73,
-      "display_height": "6' 1\"",
-      "weight_pounds": 205,
-      "display_weight": "205 lbs",
-      "college": "LSU",
-      "college_short": "LSU",
-      "college_abbrev": "LSU",
-      "experience_years": 0,
-      "display_experience": "Rookie",
-      "draft": {
-        "year": 2026,
-        "round": 7,
-        "pick": 249,
-        "team": "KC",
-        "is_undrafted": false,
-        "display": "2026: Rd 7, Pk 249 (KC)"
-      },
-      "headshot_url": "https://a.espncdn.com/i/headshots/nfl/players/full/4567747.png",
-      "headshot_alt": "Garrett Nussmeier",
-      "profile_fetched": true,
-      "data_sources": [
-        "roster",
-        "profile"
-      ],
-      "strengths": "As the quarterback, he is the trigger man for the offense, tasked with reading defenses and delivering the ball on time, and his frame is best described as lean. A late-round pick out of LSU, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
-      "weaknesses": "As a rookie, the speed of the professional game will take some time to slow down for him, and consistency is the next step. Adding strength and mass is a natural developmental focus for his frame.",
-      "blurb_meta": {
-        "archetype_key": "QB",
-        "experience_tier": "rookie",
-        "size_band": "lean",
         "rules_version": 1
       }
     },
@@ -1933,7 +1927,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "As the quarterback, he is the trigger man for the offense, tasked with reading defenses and delivering the ball on time. A first-round pick out of Texas Tech, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Like any veteran, staying fresh and continuing to adapt his game will matter as much as experience does.",
@@ -1941,6 +1936,58 @@ window.__ROSTER__ = {
         "archetype_key": "QB",
         "experience_tier": "veteran",
         "size_band": "balanced",
+        "rules_version": 1
+      }
+    },
+    {
+      "id": "4567747",
+      "full_name": "Garrett Nussmeier",
+      "first_name": "Garrett",
+      "last_name": "Nussmeier",
+      "short_name": "G. Nussmeier",
+      "jersey": "19",
+      "jersey_number": 19,
+      "position_abbrev": "QB",
+      "position_name": "Quarterback",
+      "position_group": "Offense",
+      "roster_group": "offense",
+      "status": "Active",
+      "status_type": "active",
+      "age": 24,
+      "date_of_birth": "2002-02-06",
+      "display_dob": "6/2/2002",
+      "birth_place": "Lake Charles, LA",
+      "height_inches": 73,
+      "display_height": "6' 1\"",
+      "weight_pounds": 205,
+      "display_weight": "205 lbs",
+      "college": "LSU",
+      "college_short": "LSU",
+      "college_abbrev": "LSU",
+      "experience_years": 0,
+      "display_experience": "Rookie",
+      "draft": {
+        "year": 2026,
+        "round": 7,
+        "pick": 249,
+        "team": "KC",
+        "is_undrafted": false,
+        "display": "2026: Rd 7, Pk 249 (KC)"
+      },
+      "headshot_url": "https://a.espncdn.com/i/headshots/nfl/players/full/4567747.png",
+      "headshot_alt": "Garrett Nussmeier",
+      "profile_fetched": true,
+      "data_sources": [
+        "roster",
+        "profile",
+        "chiefs_com"
+      ],
+      "strengths": "As the quarterback, he is the trigger man for the offense, tasked with reading defenses and delivering the ball on time, and his frame is best described as lean. A late-round pick out of LSU, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
+      "weaknesses": "As a rookie, the speed of the professional game will take some time to slow down for him, and consistency is the next step. Adding strength and mass is a natural developmental focus for his frame.",
+      "blurb_meta": {
+        "archetype_key": "QB",
+        "experience_tier": "rookie",
+        "size_band": "lean",
         "rules_version": 1
       }
     },
@@ -1984,7 +2031,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Working out of the backfield, he brings versatility as a runner and receiver who can change the pace of a drive. A second-round pick out of Michigan State, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -2035,7 +2083,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Working out of the backfield, he brings versatility as a runner and receiver who can change the pace of a drive. A late-round pick out of Nebraska, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "As a rookie, the speed of the professional game will take some time to slow down for him, and consistency is the next step.",
@@ -2086,7 +2135,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Working out of the backfield, he brings versatility as a runner and receiver who can change the pace of a drive, and his frame is best described as lean. A late-round pick out of SMU, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Still early in his career, he is continuing to build the consistency that comes with more experience. Adding strength and mass is a natural developmental focus for his frame.",
@@ -2137,7 +2187,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "At tight end, he offers a versatile mix of blocking and receiving that keeps the offense flexible. A mid-round pick out of TCU, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -2188,7 +2239,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "At tight end, he offers a versatile mix of blocking and receiving that keeps the offense flexible, and his frame is best described as compact. A late-round pick out of Duke, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments. Refining technique will help him maximize a smaller frame against bigger competition.",
@@ -2239,7 +2291,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "At tight end, he offers a versatile mix of blocking and receiving that keeps the offense flexible. A mid-round pick out of Cincinnati, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Like any veteran, staying fresh and continuing to adapt his game will matter as much as experience does.",
@@ -2290,7 +2343,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "At tight end, he offers a versatile mix of blocking and receiving that keeps the offense flexible. He signed as an undrafted free agent out of Clemson, a path that rewards steady, hard-nosed improvement.",
       "weaknesses": "Still early in his career, he is continuing to build the consistency that comes with more experience.",
@@ -2341,7 +2395,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Lining up at wide receiver, he looks to win one-on-one matchups and create separation down the field, and his frame is best described as compact and quick. A first-round pick out of Texas, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments. Continuing to add strength will help him hold up against bigger competition.",
@@ -2392,7 +2447,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Lining up at wide receiver, he looks to win one-on-one matchups and create separation down the field, and his frame is best described as lean. A second-round pick out of Baylor, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments. Adding strength and mass is a natural developmental focus for his frame.",
@@ -2443,7 +2499,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Lining up at wide receiver, he looks to win one-on-one matchups and create separation down the field. A second-round pick out of SMU, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -2494,7 +2551,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Lining up at wide receiver, he looks to win one-on-one matchups and create separation down the field. A mid-round pick out of Utah State, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Still early in his career, he is continuing to build the consistency that comes with more experience.",
@@ -2545,7 +2603,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Lining up at wide receiver, he looks to win one-on-one matchups and create separation down the field, and his frame is best described as compact and quick. A late-round pick out of Cincinnati, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "As a rookie, the speed of the professional game will take some time to slow down for him, and consistency is the next step. Continuing to add strength will help him hold up against bigger competition.",
@@ -2596,7 +2655,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Lining up at wide receiver, he looks to win one-on-one matchups and create separation down the field, and his frame is best described as compact. He signed as an undrafted free agent out of Fresno State, a path that rewards steady, hard-nosed improvement.",
       "weaknesses": "Still early in his career, he is continuing to build the consistency that comes with more experience. Refining technique will help him maximize a smaller frame against bigger competition.",
@@ -2647,7 +2707,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Working as the long snapper, he provides the quiet, dependable foundation every kicking play depends on. He signed as an undrafted free agent out of Oklahoma, a path that rewards steady, hard-nosed improvement.",
       "weaknesses": "Like any veteran, staying fresh and continuing to adapt his game will matter as much as experience does.",
@@ -2698,7 +2759,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "Handling punting duties, he is asked to flip the field with hang time and placement. A late-round pick out of San Diego State, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Even in his prime, there is always room to refine details and stay ahead of the league adjustments.",
@@ -2749,7 +2811,8 @@ window.__ROSTER__ = {
       "profile_fetched": true,
       "data_sources": [
         "roster",
-        "profile"
+        "profile",
+        "chiefs_com"
       ],
       "strengths": "As the placekicker, he is asked to be steady and precise whenever points are on the line. A late-round pick out of Georgia Tech, he arrived with a track record that earned the coaching staff confidence on draft weekend.",
       "weaknesses": "Like any veteran, staying fresh and continuing to adapt his game will matter as much as experience does.",
